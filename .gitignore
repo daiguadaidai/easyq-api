@@ -1,0 +1,4 @@
+*.idea
+logs*
+easyq_api.toml
+easyq-api
