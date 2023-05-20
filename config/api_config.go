@@ -23,8 +23,8 @@ type ApiConfig struct {
 	ListenPort                          int64  `json:"listen_port" toml:"listen_port"`                                                         // api监听port
 	Env                                 string `json:"env" toml:"env"`                                                                         // 环境 prod, dev
 	TokenExpire                         int64  `json:"token_expire" toml:"token_expire"`                                                       // token过期时间单位s
-	QueryMySQLUser                      string `json:"query_mysql_user" toml:"query_mysql_user"`                                               // 查询数据库用户名
-	QueryMySQLPassword                  string `json:"query_mysql_password" toml:"query_my_sql_password"`                                      // 查询数据库管理员密码
+	QueryMysqlUser                      string `json:"query_mysql_user" toml:"query_mysql_user"`                                               // 查询数据库用户名
+	QueryMysqlPassword                  string `json:"query_mysql_password" toml:"query_mysql_password"`                                       // 查询数据库管理员密码
 	ForwardRequestDialTimeout           int64  `json:"forward_request_dial_timeout" toml:"forward_request_dial_timeout"`                       // 请求转发链接超时时间
 	ForwardRequestResponseHeaderTimeout int64  `json:"forward_request_response_header_timeout" toml:"forward_request_response_header_timeout"` // 请求转发Response超时时间
 }

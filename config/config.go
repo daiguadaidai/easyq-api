@@ -122,7 +122,7 @@ func newConfigFromConsoleAndToml(
 		return nil, fmt.Errorf("获取EasyQMysqlConfig所有字段失败. %v", err.Error())
 	}
 	// 获取是EasyQMysqlConfig的命令行输入参数
-	easyqMysqlConfigCmdKeys := utils.GetExistsStrs(camelCmdKeys, easyqMysqlConfigFieldNames)
+	easyqMysqlConfigCmdKeys := utils.GetExistsStrsPrefix(camelCmdKeys, easyqMysqlConfigFieldNames, "Easyq")
 	// 设置命令行手动指定日志参数
 	if err := utils.SetObjFieldsFromOtherObj(easyqMysqlConfigCmdKeys, serverConfigCmd.EasyQMysqlConfig, serverConfigNew.EasyQMysqlConfig); err != nil {
 		return nil, fmt.Errorf("设置EasyQMysqlConfig命令行设置值. %v", err.Error())
@@ -134,7 +134,7 @@ func newConfigFromConsoleAndToml(
 		return nil, fmt.Errorf("获取EasyDBMysqlConfig所有字段失败. %v", err.Error())
 	}
 	// 获取是EasyDBMysqlConfig的命令行输入参数
-	easydbMysqlConfigCmdKeys := utils.GetExistsStrs(camelCmdKeys, easydbMysqlConfigFieldNames)
+	easydbMysqlConfigCmdKeys := utils.GetExistsStrsPrefix(camelCmdKeys, easydbMysqlConfigFieldNames, "Easydb")
 	// 设置命令行手动指定日志参数
 	if err := utils.SetObjFieldsFromOtherObj(easydbMysqlConfigCmdKeys, serverConfigCmd.EasyDBMysqlConfig, serverConfigNew.EasyDBMysqlConfig); err != nil {
 		return nil, fmt.Errorf("设置EasyDBMysqlConfig命令行设置值. %v", err.Error())

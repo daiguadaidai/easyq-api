@@ -110,6 +110,19 @@ func GetExistsStrs(from []string, to []string) []string {
 	return toStrs
 }
 
+func GetExistsStrsPrefix(from []string, to []string, toPrefix string) []string {
+	fromMap := StrsToMap(from)
+	toStrs := make([]string, 0, len(to))
+	for _, toStr := range to {
+		prefixToStr := fmt.Sprintf("%s%s", toPrefix, toStr)
+		if _, ok := fromMap[prefixToStr]; ok {
+			toStrs = append(toStrs, toStr)
+		}
+	}
+
+	return toStrs
+}
+
 func StrsToMap(strs []string) map[string]struct{} {
 	strsMap := make(map[string]struct{})
 	for _, str := range strs {

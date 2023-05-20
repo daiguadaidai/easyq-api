@@ -118,8 +118,8 @@ func initStartConfig() {
 	rootCmd.PersistentFlags().Int64Var(&apiConfig.ListenPort, "listener-port", config.DefaultListenPort, "Api监听port")
 	rootCmd.PersistentFlags().StringVar(&apiConfig.Env, "env", config.DefaultEnv, "环境: dev, prod")
 	rootCmd.PersistentFlags().Int64Var(&apiConfig.TokenExpire, "token-expire", config.DefaultTokenExpire, "Api Token 过期时间")
-	rootCmd.PersistentFlags().StringVar(&apiConfig.QueryMySQLUser, "query-mysql-user", config.DefaultQueryMySQLUser, "查询数据库管理员用户名")
-	rootCmd.PersistentFlags().StringVar(&apiConfig.QueryMySQLPassword, "query-mysql-password", config.DefaultQueryMySQLPassword, "查询数据库管理员密码")
+	rootCmd.PersistentFlags().StringVar(&apiConfig.QueryMysqlUser, "query-mysql-user", config.DefaultQueryMySQLUser, "查询数据库用户名")
+	rootCmd.PersistentFlags().StringVar(&apiConfig.QueryMysqlPassword, "query-mysql-password", config.DefaultQueryMySQLPassword, "查询数据库密码")
 	rootCmd.PersistentFlags().Int64Var(&apiConfig.ForwardRequestDialTimeout, "forward-request-dial-timeout", config.DefaultForwardRequestDialTimeout, "请求转发链接超时时间")
 	rootCmd.PersistentFlags().Int64Var(&apiConfig.ForwardRequestResponseHeaderTimeout, "forward-request-response-header-timeout", config.DefaultForwardRequestResponseHeaderTimeout, "请求转发Response超时时间")
 }
@@ -141,19 +141,19 @@ func initEasyQMysqlConfig() {
 }
 
 func initEasyDBMysqlConfig() {
-	easyqMysqlConfig = new(config.MysqlConfig)
+	easydbMysqlConfig = new(config.MysqlConfig)
 
-	rootCmd.PersistentFlags().StringVar(&easyqMysqlConfig.MysqlHost, "easydb-mysql-host", config.DefaultMysqlHost, "EasyDB Mysql默认链接使用的host")
-	rootCmd.PersistentFlags().Int64Var(&easyqMysqlConfig.MysqlPort, "easydb-mysql-port", config.DefaultMysqlPort, "EasyDB Mysql默认需要链接的端口, 如果没有指定则动态通过命令获取")
-	rootCmd.PersistentFlags().StringVar(&easyqMysqlConfig.MysqlUsername, "easydb-mysql-username", config.DefaultMysqlUsername, "EasyDB Mysql链接的用户名")
-	rootCmd.PersistentFlags().StringVar(&easyqMysqlConfig.MysqlPassword, "easydb-mysql-password", config.DefaultMysqlPassword, "EasyDB Mysql链接的密码")
-	rootCmd.PersistentFlags().StringVar(&easyqMysqlConfig.MysqlDatabase, "easydb-mysql-database", config.DefaultMysqlDatabase, "EasyDB Mysql链接的数据库名称")
-	rootCmd.PersistentFlags().IntVar(&easyqMysqlConfig.MysqlConnTimeout, "easydb-mysql-conn-timeout", config.DefaultMysqlConnTimeout, "EasyDB Mysql链接超时时间. 单位(s)")
-	rootCmd.PersistentFlags().StringVar(&easyqMysqlConfig.MysqlCharset, "easydb-mysql-charset", config.DefaultMysqlCharset, "EasyDB Mysql链接字符集")
-	rootCmd.PersistentFlags().IntVar(&easyqMysqlConfig.MysqlMaxOpenConns, "easydb-mysql-max-open-conns", config.DefaultMysqlMaxOpenConns, "EasyDB Mysql最大链接数")
-	rootCmd.PersistentFlags().IntVar(&easyqMysqlConfig.MysqlMaxIdleConns, "easydb-mysql-max-idle-conns", config.DefaultMysqlMaxIdleConns, "EasyDB Mysql最大空闲链接数")
-	rootCmd.PersistentFlags().IntVar(&easyqMysqlConfig.MysqlAllowOldPasswords, "easydb-mysql-allow-old-passwords", config.DefaultMysqlAllowOldPasswords, "EasyDB Mysql是否兼容老密码链接方式")
-	rootCmd.PersistentFlags().BoolVar(&easyqMysqlConfig.MysqlAutoCommit, "easydb-mysql-auto-commit", config.DefaultMysqlAutoCommit, "EasyDB Mysql自动提交")
+	rootCmd.PersistentFlags().StringVar(&easydbMysqlConfig.MysqlHost, "easydb-mysql-host", config.DefaultMysqlHost, "EasyDB Mysql默认链接使用的host")
+	rootCmd.PersistentFlags().Int64Var(&easydbMysqlConfig.MysqlPort, "easydb-mysql-port", config.DefaultMysqlPort, "EasyDB Mysql默认需要链接的端口, 如果没有指定则动态通过命令获取")
+	rootCmd.PersistentFlags().StringVar(&easydbMysqlConfig.MysqlUsername, "easydb-mysql-username", config.DefaultMysqlUsername, "EasyDB Mysql链接的用户名")
+	rootCmd.PersistentFlags().StringVar(&easydbMysqlConfig.MysqlPassword, "easydb-mysql-password", config.DefaultMysqlPassword, "EasyDB Mysql链接的密码")
+	rootCmd.PersistentFlags().StringVar(&easydbMysqlConfig.MysqlDatabase, "easydb-mysql-database", config.DefaultMysqlDatabase, "EasyDB Mysql链接的数据库名称")
+	rootCmd.PersistentFlags().IntVar(&easydbMysqlConfig.MysqlConnTimeout, "easydb-mysql-conn-timeout", config.DefaultMysqlConnTimeout, "EasyDB Mysql链接超时时间. 单位(s)")
+	rootCmd.PersistentFlags().StringVar(&easydbMysqlConfig.MysqlCharset, "easydb-mysql-charset", config.DefaultMysqlCharset, "EasyDB Mysql链接字符集")
+	rootCmd.PersistentFlags().IntVar(&easydbMysqlConfig.MysqlMaxOpenConns, "easydb-mysql-max-open-conns", config.DefaultMysqlMaxOpenConns, "EasyDB Mysql最大链接数")
+	rootCmd.PersistentFlags().IntVar(&easydbMysqlConfig.MysqlMaxIdleConns, "easydb-mysql-max-idle-conns", config.DefaultMysqlMaxIdleConns, "EasyDB Mysql最大空闲链接数")
+	rootCmd.PersistentFlags().IntVar(&easydbMysqlConfig.MysqlAllowOldPasswords, "easydb-mysql-allow-old-passwords", config.DefaultMysqlAllowOldPasswords, "EasyDB Mysql是否兼容老密码链接方式")
+	rootCmd.PersistentFlags().BoolVar(&easydbMysqlConfig.MysqlAutoCommit, "easydb-mysql-auto-commit", config.DefaultMysqlAutoCommit, "EasyDB Mysql自动提交")
 }
 
 func initLogConfig() {
@@ -183,11 +183,11 @@ func getAllCmdKeys(
 	if err != nil {
 		return nil, fmt.Errorf("获取LogConfig所有字段名称失败. %v", err.Error())
 	}
-	easyqMysqlConfigFiledNames, err := utils.GetStructFieldNames(easyqMysqlConfig)
+	easyqMysqlConfigFiledNames, err := utils.GetStructFieldNamesWithPrefix(easyqMysqlConfig, "easyq")
 	if err != nil {
 		return nil, fmt.Errorf("获取EasyQMysqlConfig所有字段名称失败. %v", err.Error())
 	}
-	easydbMysqlConfigFiledNames, err := utils.GetStructFieldNames(easydbMysqlConfig)
+	easydbMysqlConfigFiledNames, err := utils.GetStructFieldNamesWithPrefix(easydbMysqlConfig, "easydb")
 	if err != nil {
 		return nil, fmt.Errorf("获取EasyDBMysqlConfig所有字段名称失败. %v", err.Error())
 	}

@@ -11,31 +11,31 @@ forward_request_response_header_timeout = 5 # 请求转发Response超时时间
 
 # mysql配置
 [easyq_mysql_config]
-easyq_mysql_username = "easyq" # MySQL链接的用户名
-easyq_mysql_password = "easyq" # MySQL链接的密码
-easyq_mysql_host = "127.0.0.1" # MySQL默认链接使用的host
-easyq_mysql_port = 3306 # MySQL默认需要链接的端口, 如果没有指定则动态通过命令获取
-easyq_mysql_database = "easyq" # 链接数据库
-easyq_mysql_conn_timeout = 8 # 数据库链接超时
-easyq_mysql_charset = "utf8mb4" # 字符集
-easyq_mysql_max_open_conns = 8 # 最大链接数
-easyq_mysql_max_idel_conns = 7 # 空闲链接数
-easyq_mysql_allow_old_passwords = 1 # 是否允许oldpassword
-easyq_mysql_auto_commit = true # 是否自动提交
+mysql_username = "easyq" # MySQL链接的用户名
+mysql_password = "easyq" # MySQL链接的密码
+mysql_host = "127.0.0.1" # MySQL默认链接使用的host
+mysql_port = 3306 # MySQL默认需要链接的端口, 如果没有指定则动态通过命令获取
+mysql_database = "easyq" # 链接数据库
+mysql_conn_timeout = 8 # 数据库链接超时
+mysql_charset = "utf8mb4" # 字符集
+mysql_max_open_conns = 8 # 最大链接数
+mysql_max_idel_conns = 7 # 空闲链接数
+mysql_allow_old_passwords = 1 # 是否允许oldpassword
+mysql_auto_commit = true # 是否自动提交
 
 # mysql配置
 [easydb_mysql_config]
-easydb_mysql_username = "easydb" # MySQL链接的用户名
-easydb_mysql_password = "easydb" # MySQL链接的密码
-easydb_mysql_host = "127.0.0.1" # MySQL默认链接使用的host
-easydb_mysql_port = 3306 # MySQL默认需要链接的端口, 如果没有指定则动态通过命令获取
-easydb_mysql_database = "easydb" # 链接数据库
-easydb_mysql_conn_timeout = 8 # 数据库链接超时
-easydb_mysql_charset = "utf8mb4" # 字符集
-easydb_mysql_max_open_conns = 8 # 最大链接数
-easydb_mysql_max_idel_conns = 7 # 空闲链接数
-easydb_mysql_allow_old_passwords = 1 # 是否允许oldpassword
-easydb_mysql_auto_commit = true # 是否自动提交
+mysql_username = "easydb" # MySQL链接的用户名
+mysql_password = "easydb" # MySQL链接的密码
+mysql_host = "127.0.0.1" # MySQL默认链接使用的host
+mysql_port = 3306 # MySQL默认需要链接的端口, 如果没有指定则动态通过命令获取
+mysql_database = "easydb" # 链接数据库
+mysql_conn_timeout = 8 # 数据库链接超时
+mysql_charset = "utf8mb4" # 字符集
+mysql_max_open_conns = 8 # 最大链接数
+mysql_max_idel_conns = 7 # 空闲链接数
+mysql_allow_old_passwords = 1 # 是否允许oldpassword
+mysql_auto_commit = true # 是否自动提交
 
 # 日志配置
 [log_config]

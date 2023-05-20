@@ -148,6 +148,32 @@ func reflectGetStructFieldNames(val reflect.Value) ([]string, error) {
 	return nil, nil
 }
 
+func GetStructFieldNamesWithPrefix(v interface{}, prefix string) ([]string, error) {
+	val := reflect.ValueOf(v)
+	return reflectGetStructFieldNamesWithPrefix(val, prefix)
+}
+
+func reflectGetStructFieldNamesWithPrefix(val reflect.Value, prefix string) ([]string, error) {
+	if val.IsValid() && val.CanInterface() {
+		typ := val.Type()
+		switch typ.Kind() {
+		case reflect.Struct:
+			fieldNames := make([]string, 0, val.NumField())
+			for i := 0; i < val.NumField(); i++ {
+				tf := typ.Field(i)
+				fieldNames = append(fieldNames, fmt.Sprintf("%v%v", prefix, tf.Name))
+			}
+			return fieldNames, nil
+		case reflect.Ptr:
+			return reflectGetStructFieldNamesWithPrefix(val.Elem(), prefix)
+		}
+	} else {
+		return nil, fmt.Errorf("无效的数据结构(获取结构体所有字段名): %v", val.String())
+	}
+
+	return nil, nil
+}
+
 func InterfaceToStruct(i interface{}, mode interface{}) (interface{}, error) {
 	raw, err := json.Marshal(i)
 	if err != nil {
