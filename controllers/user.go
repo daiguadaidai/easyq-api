@@ -47,7 +47,7 @@ func (this *UserController) Login(req *request.UserLoginRequest) (*response.User
 		return nil, fmt.Errorf("用户名 %v 不存在", req.Username.String)
 	}
 	if req.Password.String != user.Password.String {
-		return nil, fmt.Errorf("用户 %v 存在, 但是登陆密码输入错误", req.Username.String, req.Password.String)
+		return nil, fmt.Errorf("用户 %v 存在, 但是登陆密码输入错误, 密码: %v", req.Username.String, req.Password.String)
 	}
 
 	// 生成登入 token

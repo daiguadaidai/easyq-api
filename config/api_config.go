@@ -8,7 +8,7 @@ import (
 const (
 	DefaultConfigFile                          = ""
 	DefaultListenHost                          = "17.0.0.1"
-	DefaultListenPort                          = 9101
+	DefaultListenPort                          = 9104
 	DefaultEnv                                 = "prod"
 	DefaultTokenExpire                         = 24 * 3600
 	DefaultQueryMySQLUser                      = "root"

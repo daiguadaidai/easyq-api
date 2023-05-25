@@ -1,7 +1,7 @@
 # api服务配置
 [api_config]
 listen_host = ""
-listen_port = 9101
+listen_port = 9104
 token_expire = 86400 # token过期时间1天
 env = "prod" # 环境 dev, prod
 query_mysql_user = "HH" # 查询数据库用户名

@@ -31,9 +31,9 @@ func StartApiService(wg *sync.WaitGroup, ctx *contexts.GlobalContext) {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	logger.M.Infof("EasyDB Api 监听地址为: %v", ctx.Cfg.ApiConfig.Address())
+	logger.M.Infof("EasyQ Api 监听地址为: %v", ctx.Cfg.ApiConfig.Address())
 	err := s.ListenAndServe()
 	if err != nil {
-		logger.M.Errorf("EasyDB Api 启动服务出错: %v", err)
+		logger.M.Errorf("EasyQ Api 启动服务出错: %v", err)
 	}
 }
