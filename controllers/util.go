@@ -7,6 +7,7 @@ import (
 	"github.com/daiguadaidai/easyq-api/utils"
 	"github.com/daiguadaidai/easyq-api/utils/sqlparser"
 	"github.com/daiguadaidai/easyq-api/views/request"
+	"github.com/daiguadaidai/easyq-api/views/response"
 )
 
 type UtilController struct {
@@ -54,4 +55,50 @@ func (this *UtilController) GetSqlFingerprints(req *request.UtilSqlFingerprintRe
 	}
 
 	return fingers, nil
+}
+
+func (this *UtilController) DBResult() (*response.UtilDBQueryResultResponse, error) {
+	// 随机生成字段名数
+	randN := utils.RandN(100)
+	if randN == 0 {
+		return &response.UtilDBQueryResultResponse{
+			ColumnNames: make([]string, 0, 0),
+			Rows:        make([]map[string]interface{}, 0, 0),
+			Sql:         "SELECT * FROM tbl_cnt_0",
+		}, nil
+	}
+
+	sqlStr := fmt.Sprintf("SELECT * FROM tbl_cnt_%v", randN)
+
+	// 生成字段名 col_name_rand
+	columnNames := make([]string, 0, randN)
+	for i := 0; i < randN; i++ {
+		columnNames = append(columnNames, fmt.Sprintf("col_name_%v", i))
+	}
+
+	// 生成随机内容
+	randRowCnt := utils.RandN(1000)
+	if randRowCnt == 0 {
+		randRowCnt = 100
+	}
+	rows := make([]map[string]interface{}, 0, randRowCnt)
+	for i := 0; i < randRowCnt; i++ {
+		row := make(map[string]interface{})
+		randLen := utils.RandN(300)
+		if randLen == 0 {
+			randLen = 50
+		}
+
+		for _, columnName := range columnNames {
+			row[columnName] = utils.RandString(randLen)
+		}
+
+		rows = append(rows, row)
+	}
+
+	return &response.UtilDBQueryResultResponse{
+		Sql:         sqlStr,
+		ColumnNames: columnNames,
+		Rows:        rows,
+	}, nil
 }

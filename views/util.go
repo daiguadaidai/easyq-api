@@ -1,12 +1,12 @@
 package views
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/daiguadaidai/easyq-api/controllers"
 	"github.com/daiguadaidai/easyq-api/logger"
 	"github.com/daiguadaidai/easyq-api/middlewares"
 	"github.com/daiguadaidai/easyq-api/utils"
 	"github.com/daiguadaidai/easyq-api/views/request"
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
@@ -20,6 +20,7 @@ func (this *UtilHandler) RegisterV1(group *gin.RouterGroup) {
 	noAuthGroup.GET("/encrypt", this.Encrypt)
 	noAuthGroup.GET("/decrypt", this.Decrypt)
 	noAuthGroup.POST("/sql-fingerprint", this.SqlFingerprint)
+	noAuthGroup.POST("/db-result", this.DBResult)
 
 	authGroup := group.Group("").Use(middlewares.JWTAuth())
 	authGroup.GET("/jwt-auth-test", this.JWTAuthTest)
@@ -100,4 +101,22 @@ func (this *UtilHandler) SqlFingerprint(c *gin.Context) {
 		return
 	}
 	utils.ReturnList(c, fingers, len(fingers))
+}
+
+func (this *UtilHandler) DBResult(c *gin.Context) {
+	globalCtx, err := middlewares.GetGlobalContext(c)
+	if err != nil {
+		logger.M.Error(err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	result, err := controllers.NewUtilController(globalCtx).DBResult()
+	if err != nil {
+		logger.M.Error(err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	utils.ReturnSuccess(c, result)
 }
