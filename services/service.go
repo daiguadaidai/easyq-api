@@ -54,7 +54,7 @@ func getCtx(serverConfig *config.ServerConfig) (*contexts.GlobalContext, error) 
 	logger.M.Infof("创建EasyQ gorm数据库连接池成功: %s", serverConfig.EasyQMysqlConfig.GetFuzzyDataSource())
 
 	// 获取Easydb MySQL数据库连接池
-	easydbDB, err := gdbc.GetOrmDB(serverConfig.EasyQMysqlConfig)
+	easydbDB, err := gdbc.GetOrmDB(serverConfig.EasyDBMysqlConfig)
 	if err != nil {
 		return nil, err
 	}
