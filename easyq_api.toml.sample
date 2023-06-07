@@ -6,6 +6,8 @@ token_expire = 86400 # token过期时间1天
 env = "prod" # 环境 dev, prod
 query_mysql_user = "HH" # 查询数据库用户名
 query_mysql_password = "oracle12" # 查询数据库密码
+admin_mysql_user = "HH" # 管理数据库用户名
+admin_mysql_password = "oracle12" # 管理数据库密码
 forward_request_dial_timeout = 10 # 请求转发链接超时时间
 forward_request_response_header_timeout = 5 # 请求转发Response超时时间
 

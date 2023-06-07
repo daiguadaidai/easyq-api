@@ -46,6 +46,8 @@ Example:
     --token-expire=86400 \
     --query-mysql-user="root" \
     --query-mysql-password="root" \
+    --admin-mysql-user="root" \
+    --admin-mysql-password="root" \
 	--forward-request-dial-timeout=10 \
 	--forward-request-response-header-timeout=5 \
     --easyq-mysql-host=127.0.0.1 \
@@ -120,6 +122,8 @@ func initStartConfig() {
 	rootCmd.PersistentFlags().Int64Var(&apiConfig.TokenExpire, "token-expire", config.DefaultTokenExpire, "Api Token 过期时间")
 	rootCmd.PersistentFlags().StringVar(&apiConfig.QueryMysqlUser, "query-mysql-user", config.DefaultQueryMySQLUser, "查询数据库用户名")
 	rootCmd.PersistentFlags().StringVar(&apiConfig.QueryMysqlPassword, "query-mysql-password", config.DefaultQueryMySQLPassword, "查询数据库密码")
+	rootCmd.PersistentFlags().StringVar(&apiConfig.AdminMysqlUser, "admin-mysql-user", config.DefaultAdminMySQLUser, "管理数据库用户名")
+	rootCmd.PersistentFlags().StringVar(&apiConfig.AdminMysqlPassword, "admin-mysql-password", config.DefaultAdminMySQLPassword, "管理数据库密码")
 	rootCmd.PersistentFlags().Int64Var(&apiConfig.ForwardRequestDialTimeout, "forward-request-dial-timeout", config.DefaultForwardRequestDialTimeout, "请求转发链接超时时间")
 	rootCmd.PersistentFlags().Int64Var(&apiConfig.ForwardRequestResponseHeaderTimeout, "forward-request-response-header-timeout", config.DefaultForwardRequestResponseHeaderTimeout, "请求转发Response超时时间")
 }

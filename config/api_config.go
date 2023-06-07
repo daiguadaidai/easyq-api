@@ -13,6 +13,8 @@ const (
 	DefaultTokenExpire                         = 24 * 3600
 	DefaultQueryMySQLUser                      = "root"
 	DefaultQueryMySQLPassword                  = "root"
+	DefaultAdminMySQLUser                      = "root"
+	DefaultAdminMySQLPassword                  = "root"
 	DefaultForwardRequestDialTimeout           = 10
 	DefaultForwardRequestResponseHeaderTimeout = 5
 )
@@ -25,6 +27,8 @@ type ApiConfig struct {
 	TokenExpire                         int64  `json:"token_expire" toml:"token_expire"`                                                       // token过期时间单位s
 	QueryMysqlUser                      string `json:"query_mysql_user" toml:"query_mysql_user"`                                               // 查询数据库用户名
 	QueryMysqlPassword                  string `json:"query_mysql_password" toml:"query_mysql_password"`                                       // 查询数据库管理员密码
+	AdminMysqlUser                      string `json:"admin_mysql_user" toml:"admin_mysql_user"`                                               // 查询数据库用户名
+	AdminMysqlPassword                  string `json:"admin_mysql_password" toml:"admin_mysql_password"`                                       // 查询数据库管理员密码
 	ForwardRequestDialTimeout           int64  `json:"forward_request_dial_timeout" toml:"forward_request_dial_timeout"`                       // 请求转发链接超时时间
 	ForwardRequestResponseHeaderTimeout int64  `json:"forward_request_response_header_timeout" toml:"forward_request_response_header_timeout"` // 请求转发Response超时时间
 }
