@@ -33,6 +33,11 @@ func (this *DBOprationHandler) ClusterDBNames(c *gin.Context) {
 		return
 	}
 	logger.M.Infof("[DBOprationHandler] ClusterDBNames. req: %s", utils.ToJsonStr(req))
+	if err := req.Check(); err != nil {
+		logger.M.Errorf("[DBOprationHandler] ClusterDBNames. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
 
 	// 获取context
 	globalCtx, err := middlewares.GetGlobalContext(c)

@@ -2,15 +2,16 @@ package request
 
 import (
 	"fmt"
+	"github.com/daiguadaidai/easyq-api/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
-	"github.com/daiguadaidai/easyq-api/logger"
 	"strings"
 )
 
 const (
 	DefaultPageSize = 50
 	MaxPageSize     = 500
+	DefaultLimit    = 50
 )
 
 func NewRequest(c *gin.Context, obj interface{}) (interface{}, error) {

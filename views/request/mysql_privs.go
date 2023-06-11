@@ -45,3 +45,10 @@ func (this *PrivsApplyPrivSuccessRequest) Check() error {
 
 	return nil
 }
+
+type PrivsApplyMysqlPrivOrderRequest struct {
+	Pager
+	OrderUUID   types.NullString `json:"order_uuid" form:"order_uuid"`
+	Username    types.NullString `json:"username" form:"username"`
+	ApplyStatus types.NullInt64  `json:"apply_status" form:"apply_status"`
+}

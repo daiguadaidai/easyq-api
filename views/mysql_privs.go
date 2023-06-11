@@ -11,7 +11,7 @@ import (
 
 func init() {
 	handler := new(PrivsHandler)
-	AddHandlerV1("/privs", handler) // 添加当前页面的uri路径之前都要添加上这个
+	AddHandlerV1("/mysql-privs", handler) // 添加当前页面的uri路径之前都要添加上这个
 }
 
 type PrivsHandler struct{}
@@ -21,6 +21,7 @@ func (this *PrivsHandler) RegisterV1(group *gin.RouterGroup) {
 	// 需要auth校验
 	authGroup := group.Group("").Use(middlewares.JWTAuth())
 	authGroup.POST("/apply-mysql-priv", this.ApplyMySQLPriv)
+	authGroup.POST("/apply-mysql-priv-order", this.ApplyMysqlPrivOrder)
 
 	// 需要auth校验, 和DBA权限
 	authAndDBAGroup := group.Group("").Use(middlewares.JWTAuth(), middlewares.NeedRoleDBA())
@@ -37,6 +38,11 @@ func (this *PrivsHandler) ApplyMySQLPriv(c *gin.Context) {
 		return
 	}
 	logger.M.Infof("[PrivsHandler] ApplyMySQLPriv. req: %s", utils.ToJsonStr(req))
+	if err := req.Check(); err != nil {
+		logger.M.Errorf("[PrivsHandler] ApplyMySQLPriv. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
 
 	// 获取context
 	globalCtx, err := middlewares.GetGlobalContext(c)
@@ -47,7 +53,7 @@ func (this *PrivsHandler) ApplyMySQLPriv(c *gin.Context) {
 	}
 
 	// 创建申请工单
-	if err := controllers.NewPrivsController(globalCtx).ApplyMySQLPriv(c, req); err != nil {
+	if err := controllers.NewPrivsController(globalCtx).ApplyMySQLPriv(c, &req); err != nil {
 		logger.M.Errorf("[PrivsHandler] ApplyMySQLPriv. %v", err.Error())
 		utils.ReturnError(c, utils.ResponseCodeErr, err)
 		return
@@ -66,6 +72,11 @@ func (this *PrivsHandler) ApplyMysqlPrivSuccess(c *gin.Context) {
 		return
 	}
 	logger.M.Infof("[PrivsHandler] ApplyPrivSuccess. req: %s", utils.ToJsonStr(req))
+	if err := req.Check(); err != nil {
+		logger.M.Errorf("[PrivsHandler] ApplyPrivSuccess. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
 
 	// 获取context
 	globalCtx, err := middlewares.GetGlobalContext(c)
@@ -76,11 +87,41 @@ func (this *PrivsHandler) ApplyMysqlPrivSuccess(c *gin.Context) {
 	}
 
 	// 创建申请工单
-	if err := controllers.NewPrivsController(globalCtx).ApplyMysqlPrivSuccess(c, req); err != nil {
+	if err := controllers.NewPrivsController(globalCtx).ApplyMysqlPrivSuccess(c, &req); err != nil {
 		logger.M.Errorf("[PrivsHandler] ApplyPrivSuccess. %v", err.Error())
 		utils.ReturnError(c, utils.ResponseCodeErr, err)
 		return
 	}
 
 	utils.ReturnSuccess(c, nil)
+}
+
+// 获取mysql工单列表
+func (this *PrivsHandler) ApplyMysqlPrivOrder(c *gin.Context) {
+	// 解析 request参数
+	var req request.PrivsApplyMysqlPrivOrderRequest
+	if err := c.ShouldBind(&req); err != nil {
+		logger.M.Errorf("[PrivsHandler] ApplyMysqlPrivOrder. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+	logger.M.Infof("[PrivsHandler] ApplyMysqlPrivOrder. req: %s", utils.ToJsonStr(req))
+
+	// 获取context
+	globalCtx, err := middlewares.GetGlobalContext(c)
+	if err != nil {
+		logger.M.Errorf("[PrivsHandler] ApplyMysqlPrivOrder. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	// 获取列表
+	orders, err := controllers.NewPrivsController(globalCtx).ApplyMysqlPrivOrder(&req)
+	if err != nil {
+		logger.M.Errorf("[PrivsHandler] ApplyMysqlPrivOrder. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	utils.ReturnList(c, orders, len(orders))
 }

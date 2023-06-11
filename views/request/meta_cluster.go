@@ -5,10 +5,6 @@ import (
 	"github.com/daiguadaidai/easyq-api/types"
 )
 
-const (
-	DefaultLimit = 50
-)
-
 type MCFindRequest struct {
 	Pager
 	Keyword types.NullString `json:"keyword" form:"keyword"`

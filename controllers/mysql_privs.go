@@ -21,7 +21,7 @@ func NewPrivsController(ctx *contexts.GlobalContext) *PrivsController {
 	return &PrivsController{ctx: ctx}
 }
 
-func (this *PrivsController) ApplyMySQLPriv(c *gin.Context, req request.PrivsApplyMysqlPrivRequest) error {
+func (this *PrivsController) ApplyMySQLPriv(c *gin.Context, req *request.PrivsApplyMysqlPrivRequest) error {
 	// 获取用户信息
 	clainms, err := middlewares.GetClaims(c)
 	if err != nil {
@@ -75,7 +75,7 @@ func (this *PrivsController) ApplyMySQLPriv(c *gin.Context, req request.PrivsApp
 	return nil
 }
 
-func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req request.PrivsApplyPrivSuccessRequest) error {
+func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.PrivsApplyPrivSuccessRequest) error {
 	// 获取用户信息
 	clainms, err := middlewares.GetClaims(c)
 	if err != nil {
@@ -119,4 +119,13 @@ func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req request.P
 	}
 
 	return nil
+}
+func (this *PrivsController) ApplyMysqlPrivOrder(req *request.PrivsApplyMysqlPrivOrderRequest) ([]*models.MysqlDBPrivApplyOrder, error) {
+	orderPram := &models.MysqlDBPrivApplyOrder{
+		OrderUUID:   req.OrderUUID,
+		Username:    req.Username,
+		ApplyStatus: req.ApplyStatus,
+	}
+
+	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).Find(orderPram, req.Offset(), req.Limit())
 }
