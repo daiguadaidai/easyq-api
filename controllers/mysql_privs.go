@@ -129,3 +129,12 @@ func (this *PrivsController) ApplyMysqlPrivOrder(req *request.PrivsApplyMysqlPri
 
 	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).Find(orderPram, req.Offset(), req.Limit())
 }
+
+func (this *PrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPrivByUUIDRequest) ([]*models.MysqlDBPrivApply, error) {
+		applyPrivs, err := dao.NewMysqlDBPrivApplyDao(this.ctx.EasyqDB).FindByUUID(req.OrderUUID.String)
+		if err != nil {
+			return nil, fmt.Errorf("通过uuid获取申请权限列表失败. uuid: %v", req.OrderUUID.String)
+		}
+
+		return applyPrivs, nil
+}

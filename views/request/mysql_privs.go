@@ -52,3 +52,15 @@ type PrivsApplyMysqlPrivOrderRequest struct {
 	Username    types.NullString `json:"username" form:"username"`
 	ApplyStatus types.NullInt64  `json:"apply_status" form:"apply_status"`
 }
+
+type PrivsApplyMysqlPrivByUUIDRequest struct {
+	OrderUUID types.NullString `json:"order_uuid" form:"order_uuid"`
+}
+
+func (this *PrivsApplyMysqlPrivByUUIDRequest) Check() error {
+	if this.OrderUUID.IsEmpty() {
+		return fmt.Errorf("工单uuid不能为空")
+	}
+
+	return nil
+}
