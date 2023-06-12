@@ -116,15 +116,23 @@ func (this *PrivsHandler) ApplyMysqlPrivOrder(c *gin.Context) {
 		return
 	}
 
+	controller := controllers.NewPrivsController(globalCtx)
 	// 获取列表
-	orders, err := controllers.NewPrivsController(globalCtx).ApplyMysqlPrivOrder(&req)
+	orders, err := controller.ApplyMysqlPrivOrder(&req)
+	if err != nil {
+		logger.M.Errorf("[PrivsHandler] ApplyMysqlPrivOrder. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+	// 获取数量
+	cnt, err := controller.Count(&req)
 	if err != nil {
 		logger.M.Errorf("[PrivsHandler] ApplyMysqlPrivOrder. %v", err.Error())
 		utils.ReturnError(c, utils.ResponseCodeErr, err)
 		return
 	}
 
-	utils.ReturnList(c, orders, len(orders))
+	utils.ReturnList(c, orders, int(cnt))
 }
 
 // 获取mysql工单列表

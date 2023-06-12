@@ -37,7 +37,7 @@ func (this *MysqlDBPrivApplyOrderDao) Find(order *models.MysqlDBPrivApplyOrder, 
 	whereStr := this.GetWhere(order)
 
 	var orders []*models.MysqlDBPrivApplyOrder
-	if err := this.DB.Model(&models.MysqlDBPrivApplyOrder{}).Where(whereStr).Offset(offset).Limit(limit).Find(&orders).Error; err != nil {
+	if err := this.DB.Model(&models.MysqlDBPrivApplyOrder{}).Where(whereStr).Order("id DESC").Offset(offset).Limit(limit).Find(&orders).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -46,6 +46,21 @@ func (this *MysqlDBPrivApplyOrderDao) Find(order *models.MysqlDBPrivApplyOrder, 
 	}
 
 	return orders, nil
+}
+
+func (this *MysqlDBPrivApplyOrderDao) Count(order *models.MysqlDBPrivApplyOrder) (int64, error) {
+	whereStr := this.GetWhere(order)
+
+	var cnt int64
+	if err := this.DB.Model(&models.MysqlDBPrivApplyOrder{}).Where(whereStr).Count(&cnt).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return 0, nil
+		}
+
+		return 0, err
+	}
+
+	return cnt, nil
 }
 
 func (this *MysqlDBPrivApplyOrderDao) GetByUUID(uuid string) (*models.MysqlDBPrivApplyOrder, error) {

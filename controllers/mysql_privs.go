@@ -120,6 +120,7 @@ func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.
 
 	return nil
 }
+
 func (this *PrivsController) ApplyMysqlPrivOrder(req *request.PrivsApplyMysqlPrivOrderRequest) ([]*models.MysqlDBPrivApplyOrder, error) {
 	orderPram := &models.MysqlDBPrivApplyOrder{
 		OrderUUID:   req.OrderUUID,
@@ -130,11 +131,21 @@ func (this *PrivsController) ApplyMysqlPrivOrder(req *request.PrivsApplyMysqlPri
 	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).Find(orderPram, req.Offset(), req.Limit())
 }
 
-func (this *PrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPrivByUUIDRequest) ([]*models.MysqlDBPrivApply, error) {
-		applyPrivs, err := dao.NewMysqlDBPrivApplyDao(this.ctx.EasyqDB).FindByUUID(req.OrderUUID.String)
-		if err != nil {
-			return nil, fmt.Errorf("通过uuid获取申请权限列表失败. uuid: %v", req.OrderUUID.String)
-		}
+func (this *PrivsController) Count(req *request.PrivsApplyMysqlPrivOrderRequest) (int64, error) {
+	orderPram := &models.MysqlDBPrivApplyOrder{
+		OrderUUID:   req.OrderUUID,
+		Username:    req.Username,
+		ApplyStatus: req.ApplyStatus,
+	}
 
-		return applyPrivs, nil
+	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).Count(orderPram)
+}
+
+func (this *PrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPrivByUUIDRequest) ([]*models.MysqlDBPrivApply, error) {
+	applyPrivs, err := dao.NewMysqlDBPrivApplyDao(this.ctx.EasyqDB).FindByUUID(req.OrderUUID.String)
+	if err != nil {
+		return nil, fmt.Errorf("通过uuid获取申请权限列表失败. uuid: %v", req.OrderUUID.String)
+	}
+
+	return applyPrivs, nil
 }
