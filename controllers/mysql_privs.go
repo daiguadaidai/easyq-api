@@ -98,7 +98,7 @@ func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.
 		return fmt.Errorf("通过uuid获取工单失败. uuid: %v. %v", req.OrderUUID.String, err)
 	}
 	if order == nil {
-		return fmt.Errorf("申请单不存在, uuid: %v. %v", req.OrderUUID.String)
+		return fmt.Errorf("申请单不存在, uuid: %v", req.OrderUUID.String)
 	}
 
 	// 获取单子对应到申请权限
@@ -107,7 +107,7 @@ func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.
 		return fmt.Errorf("通过uuid获取申请权限失败. uuid: %v. %v", req.OrderUUID.String, err)
 	}
 	if len(applyPrivs) == 0 {
-		return fmt.Errorf("通过uuid没有获取到申请权限, uuid: %v. %v", req.OrderUUID.String)
+		return fmt.Errorf("通过uuid没有获取到申请权限, uuid: %v", req.OrderUUID.String)
 	}
 
 	// 权限申请权限转化成权限
@@ -115,7 +115,12 @@ func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.
 
 	// 批量保存权限
 	if err := dao.NewMysqlDBPrivDao(this.ctx.EasyqDB).BatchReplace(privs); err != nil {
-		return fmt.Errorf("批量报错权限出错. %v, ", err, utils.ToJsonStr(privs))
+		return fmt.Errorf("批量报错权限出错. %v, %v", err, utils.ToJsonStr(privs))
+	}
+
+	// 更新成功
+	if err := dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).UpdateStatusSuccess(order.ID.Int64); err != nil {
+		return fmt.Errorf("更新工单审批成功出错. uuid: %v. %v, ", req.OrderUUID.String, err)
 	}
 
 	return nil
@@ -148,4 +153,12 @@ func (this *PrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPr
 	}
 
 	return applyPrivs, nil
+}
+
+
+func (this *PrivsController) ApplyMysqlPrivOrderEditByUUID(req *request.PrivsApplyMysqlPrivOrderEditByUUIDRequest) (error) {
+	var orderParam models.MysqlDBPrivApplyOrder
+	utils.CopyStruct(req, &orderParam)
+
+	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).UpdateByUUID(&orderParam)
 }

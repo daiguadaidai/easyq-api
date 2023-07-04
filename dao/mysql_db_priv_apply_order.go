@@ -104,3 +104,7 @@ func (this *MysqlDBPrivApplyOrderDao) UpdateStatusFail(id int64) error {
 	}
 	return this.DB.Model(order).Updates(order).Error
 }
+
+func (this *MysqlDBPrivApplyOrderDao) UpdateByUUID(order *models.MysqlDBPrivApplyOrder) error {
+	return this.DB.Model(order).Where("order_uuid=?", order.OrderUUID.String).Updates(order).Error
+}
