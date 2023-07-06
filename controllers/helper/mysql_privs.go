@@ -3,6 +3,8 @@ package helper
 import (
 	"fmt"
 	"github.com/daiguadaidai/easyq-api/models"
+	"github.com/daiguadaidai/easyq-api/utils"
+	"github.com/daiguadaidai/easyq-api/views/response"
 )
 
 // 申请权限去重
@@ -19,4 +21,15 @@ func UniqueMysqlPrivApplys(applys []*models.MysqlDBPrivApply) []*models.MysqlDBP
 	}
 
 	return uniqueApplys
+}
+
+func MysqlPrivsToTree(privs []*models.MysqlDBPriv) []*response.MysqlPrivsTreeResponse {
+	tree := make([]*response.MysqlPrivsTreeResponse, 0, len(privs))
+	for _, priv := range privs {
+		var p response.MysqlPrivsTreeResponse
+		utils.CopyStruct(priv, &p)
+		tree = append(tree, &p)
+	}
+
+	return tree
 }

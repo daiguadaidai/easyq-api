@@ -22,3 +22,19 @@ func (this *MysqlDBPrivDao) BatchReplace(privs []*models.MysqlDBPriv) error {
 		DoUpdates: clause.AssignmentColumns([]string{"user_id", "order_uuid", "username", "name_zh", "meta_cluster_id", "cluster_name", "db_name", "vip_port"}),
 	}).Create(&privs).Error
 }
+
+func (this *MysqlDBPrivDao) FindPrivsTreeByUsername(username string) ([]*models.MysqlDBPriv, error) {
+	var privs []*models.MysqlDBPriv
+	if err := this.DB.Model(&models.MysqlDBPriv{}).
+		Select("id, meta_cluster_id, cluster_name, db_name, vip_port").
+		Where("username = ?", username).
+		Find(&privs).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return privs, nil
+}

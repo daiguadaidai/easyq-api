@@ -65,9 +65,8 @@ func (this *PrivsApplyMysqlPrivByUUIDRequest) Check() error {
 	return nil
 }
 
-
 type PrivsApplyMysqlPrivOrderEditByUUIDRequest struct {
-	OrderUUID types.NullString `json:"order_uuid" form:"order_uuid"`
+	OrderUUID   types.NullString `json:"order_uuid" form:"order_uuid"`
 	ApplyStatus types.NullInt64  `json:"apply_status" form:"apply_status"`
 }
 
@@ -77,7 +76,19 @@ func (this *PrivsApplyMysqlPrivOrderEditByUUIDRequest) Check() error {
 	}
 
 	if this.ApplyStatus.IsZero() {
-		return fmt.Errorf("工单状态不能为空");
+		return fmt.Errorf("工单状态不能为空")
+	}
+
+	return nil
+}
+
+type PrivsMysqlFindTreeByUsername struct {
+	Username types.NullString `json:"username" form:"username"`
+}
+
+func (this *PrivsMysqlFindTreeByUsername) Check() error {
+	if this.Username.IsEmpty() {
+		return fmt.Errorf("获取数据库权限信息, 用户信息不能为空")
 	}
 
 	return nil

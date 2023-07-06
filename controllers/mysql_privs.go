@@ -10,6 +10,7 @@ import (
 	"github.com/daiguadaidai/easyq-api/types"
 	"github.com/daiguadaidai/easyq-api/utils"
 	"github.com/daiguadaidai/easyq-api/views/request"
+	"github.com/daiguadaidai/easyq-api/views/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -155,10 +156,20 @@ func (this *PrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPr
 	return applyPrivs, nil
 }
 
-
-func (this *PrivsController) ApplyMysqlPrivOrderEditByUUID(req *request.PrivsApplyMysqlPrivOrderEditByUUIDRequest) (error) {
+func (this *PrivsController) ApplyMysqlPrivOrderEditByUUID(req *request.PrivsApplyMysqlPrivOrderEditByUUIDRequest) error {
 	var orderParam models.MysqlDBPrivApplyOrder
 	utils.CopyStruct(req, &orderParam)
 
 	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).UpdateByUUID(&orderParam)
+}
+
+func (this *PrivsController) FindPrivsTreeByUsername(req *request.PrivsMysqlFindTreeByUsername) ([]*response.MysqlPrivsTreeResponse, error) {
+	privs, err := dao.NewMysqlDBPrivDao(this.ctx.EasyqDB).FindPrivsTreeByUsername(req.Username.String)
+	if err != nil {
+		return nil, fmt.Errorf("获取数据库权限出错. %v", err)
+	}
+
+	tree := helper.MysqlPrivsToTree(privs)
+
+	return tree, nil
 }
