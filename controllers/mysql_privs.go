@@ -14,15 +14,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PrivsController struct {
+type MysqlPrivsController struct {
 	ctx *contexts.GlobalContext
 }
 
-func NewPrivsController(ctx *contexts.GlobalContext) *PrivsController {
-	return &PrivsController{ctx: ctx}
+func NewMysqlPrivsController(ctx *contexts.GlobalContext) *MysqlPrivsController {
+	return &MysqlPrivsController{ctx: ctx}
 }
 
-func (this *PrivsController) ApplyMySQLPriv(c *gin.Context, req *request.PrivsApplyMysqlPrivRequest) error {
+func (this *MysqlPrivsController) ApplyMySQLPriv(c *gin.Context, req *request.PrivsApplyMysqlPrivRequest) error {
 	// 获取用户信息
 	clainms, err := middlewares.GetClaims(c)
 	if err != nil {
@@ -76,7 +76,7 @@ func (this *PrivsController) ApplyMySQLPriv(c *gin.Context, req *request.PrivsAp
 	return nil
 }
 
-func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.PrivsApplyPrivSuccessRequest) error {
+func (this *MysqlPrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.PrivsApplyPrivSuccessRequest) error {
 	// 获取用户信息
 	clainms, err := middlewares.GetClaims(c)
 	if err != nil {
@@ -127,7 +127,7 @@ func (this *PrivsController) ApplyMysqlPrivSuccess(c *gin.Context, req *request.
 	return nil
 }
 
-func (this *PrivsController) ApplyMysqlPrivOrder(req *request.PrivsApplyMysqlPrivOrderRequest) ([]*models.MysqlDBPrivApplyOrder, error) {
+func (this *MysqlPrivsController) ApplyMysqlPrivOrder(req *request.PrivsApplyMysqlPrivOrderRequest) ([]*models.MysqlDBPrivApplyOrder, error) {
 	orderPram := &models.MysqlDBPrivApplyOrder{
 		OrderUUID:   req.OrderUUID,
 		Username:    req.Username,
@@ -137,7 +137,7 @@ func (this *PrivsController) ApplyMysqlPrivOrder(req *request.PrivsApplyMysqlPri
 	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).Find(orderPram, req.Offset(), req.Limit())
 }
 
-func (this *PrivsController) Count(req *request.PrivsApplyMysqlPrivOrderRequest) (int64, error) {
+func (this *MysqlPrivsController) Count(req *request.PrivsApplyMysqlPrivOrderRequest) (int64, error) {
 	orderPram := &models.MysqlDBPrivApplyOrder{
 		OrderUUID:   req.OrderUUID,
 		Username:    req.Username,
@@ -147,7 +147,7 @@ func (this *PrivsController) Count(req *request.PrivsApplyMysqlPrivOrderRequest)
 	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).Count(orderPram)
 }
 
-func (this *PrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPrivByUUIDRequest) ([]*models.MysqlDBPrivApply, error) {
+func (this *MysqlPrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPrivByUUIDRequest) ([]*models.MysqlDBPrivApply, error) {
 	applyPrivs, err := dao.NewMysqlDBPrivApplyDao(this.ctx.EasyqDB).FindByUUID(req.OrderUUID.String)
 	if err != nil {
 		return nil, fmt.Errorf("通过uuid获取申请权限列表失败. uuid: %v", req.OrderUUID.String)
@@ -156,14 +156,14 @@ func (this *PrivsController) ApplyPrivsFindByUUID(req *request.PrivsApplyMysqlPr
 	return applyPrivs, nil
 }
 
-func (this *PrivsController) ApplyMysqlPrivOrderEditByUUID(req *request.PrivsApplyMysqlPrivOrderEditByUUIDRequest) error {
+func (this *MysqlPrivsController) ApplyMysqlPrivOrderEditByUUID(req *request.PrivsApplyMysqlPrivOrderEditByUUIDRequest) error {
 	var orderParam models.MysqlDBPrivApplyOrder
 	utils.CopyStruct(req, &orderParam)
 
 	return dao.NewMysqlDBPrivApplyOrderDao(this.ctx.EasyqDB).UpdateByUUID(&orderParam)
 }
 
-func (this *PrivsController) FindPrivsTreeByUsername(req *request.PrivsMysqlFindTreeByUsername) ([]*response.MysqlPrivsTreeResponse, error) {
+func (this *MysqlPrivsController) FindPrivsTreeByUsername(req *request.PrivsMysqlFindTreeByUsername) ([]*response.MysqlPrivsTreeResponse, error) {
 	privs, err := dao.NewMysqlDBPrivDao(this.ctx.EasyqDB).FindPrivsTreeByUsername(req.Username.String)
 	if err != nil {
 		return nil, fmt.Errorf("获取数据库权限出错. %v", err)

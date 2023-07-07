@@ -38,3 +38,18 @@ func (this *MysqlDBPrivDao) FindPrivsTreeByUsername(username string) ([]*models.
 
 	return privs, nil
 }
+
+func (this *MysqlDBPrivDao) GetByUsernameClusterDB(username string, meta_cluster_id int64, db_name string) (*models.MysqlDBPriv, error) {
+	var priv models.MysqlDBPriv
+	if err := this.DB.Model(&models.MysqlDBPriv{}).
+		Where("username = ? AND meta_cluster_id = ? AND db_name = ?", username, meta_cluster_id, db_name).
+		First(&priv).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &priv, nil
+}
