@@ -43,3 +43,26 @@ func (this *DBOperationDao) ShowDatabases() ([]string, error) {
 
 	return dbNames, nil
 }
+
+func (this *DBOperationDao) ShowTables() ([]string, error) {
+	query := "SHOW TABLES"
+
+	rows, err := this.DB.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("SHOW TABLES 查询出错. %v", err)
+	}
+	defer rows.Close()
+
+	var tableName string
+	tableNames := make([]string, 0, 10)
+	for rows.Next() {
+		err = rows.Scan(&tableName) //不scan会导致连接不释放
+		if err != nil {
+			return nil, fmt.Errorf("Scan failed, err: %v", err)
+		}
+
+		tableNames = append(tableNames, tableName)
+	}
+
+	return tableNames, nil
+}

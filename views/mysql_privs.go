@@ -24,6 +24,7 @@ func (this *MysqlPrivsHandler) RegisterV1(group *gin.RouterGroup) {
 	authGroup.POST("/apply-mysql-priv-order", this.ApplyMysqlPrivOrder)
 	authGroup.POST("/apply-mysql-priv-find-by-uuid", this.ApplyMysqlPrivFindByUUID)
 	authGroup.POST("/find-privs-tree-by-username", this.FindPrivsTreeByUsername)
+	authGroup.POST("/find-tables-by-user", this.FindTablesByUser)
 
 	// 需要auth校验, 和DBA权限
 	authAndDBAGroup := group.Group("").Use(middlewares.JWTAuth(), middlewares.NeedRoleDBA())
@@ -238,4 +239,39 @@ func (this *MysqlPrivsHandler) FindPrivsTreeByUsername(c *gin.Context) {
 	}
 
 	utils.ReturnList(c, privs, len(privs))
+}
+
+// 通过用户获取所有的数据库权限
+func (this *MysqlPrivsHandler) FindTablesByUser(c *gin.Context) {
+	// 解析 request参数
+	var req request.PrivsMysqlFindTablesByUserRequest
+	if err := c.ShouldBind(&req); err != nil {
+		logger.M.Errorf("[MysqlPrivsHandler] FindTablesByUser. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+	logger.M.Infof("[MysqlPrivsHandler] FindTablesByUser. req: %s", utils.ToJsonStr(req))
+	if err := req.Check(); err != nil {
+		logger.M.Errorf("[MysqlPrivsHandler] FindTablesByUser. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	// 获取context
+	globalCtx, err := middlewares.GetGlobalContext(c)
+	if err != nil {
+		logger.M.Errorf("[MysqlPrivsHandler] FindTablesByUser. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	// 创建申请工单
+	tableNames, err := controllers.NewMysqlPrivsController(globalCtx).FindTablesByUser(c, &req)
+	if err != nil {
+		logger.M.Errorf("[MysqlPrivsHandler] FindTablesByUser. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	utils.ReturnList(c, tableNames, len(tableNames))
 }

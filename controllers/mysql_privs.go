@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/daiguadaidai/easyq-api/config"
 	"github.com/daiguadaidai/easyq-api/contexts"
 	"github.com/daiguadaidai/easyq-api/controllers/helper"
 	"github.com/daiguadaidai/easyq-api/dao"
+	"github.com/daiguadaidai/easyq-api/gdbc"
 	"github.com/daiguadaidai/easyq-api/middlewares"
 	"github.com/daiguadaidai/easyq-api/models"
 	"github.com/daiguadaidai/easyq-api/types"
@@ -172,4 +174,33 @@ func (this *MysqlPrivsController) FindPrivsTreeByUsername(req *request.PrivsMysq
 	tree := helper.MysqlPrivsToTree(privs)
 
 	return tree, nil
+}
+
+func (this *MysqlPrivsController) FindTablesByUser(c *gin.Context, req *request.PrivsMysqlFindTablesByUserRequest) ([]string, error) {
+	// 检测权限是否存在
+	priv, err := helper.CheckMysqlPriv(c, this.ctx, req.DBName.String, req.MetaClusterId.Int64)
+	if err != nil {
+		return nil, fmt.Errorf("检测用户数据库权限出错. %v", err.Error())
+	}
+
+	// 获取master
+	master, err := dao.NewInstanceDao(this.ctx.EasydbDB).GetMasterByMetaClusterId(priv.MetaClusterId.Int64)
+	if err != nil {
+		return nil, fmt.Errorf("获取数据库实例出错. meta_cluster_id: %v, %v", priv.MetaClusterId.Int64, err.Error())
+	}
+
+	// 链接master并且
+	mysqlConfg := config.NewMysqlConfig(master.MasterHost.String, master.Port.Int64, this.ctx.Cfg.ApiConfig.AdminMysqlUser, this.ctx.Cfg.ApiConfig.AdminMysqlPassword, priv.DBName.String)
+	db, err := gdbc.GetMySQLDB(mysqlConfg)
+	if err != nil {
+		return nil, fmt.Errorf("创建实例链接出错 %v:%v db_name: %v. %v", master.MasterHost.String, master.Port.Int64, priv.DBName.String, err.Error())
+	}
+	defer db.Close()
+
+	dbNames, err := dao.NewDBOperationDao(db).ShowTables()
+	if err != nil {
+		return nil, fmt.Errorf("获取数据库表信息出错 %v:%v db_name: %v. %v", master.MasterHost.String, master.Port.Int64, priv.DBName.String, err.Error())
+	}
+
+	return dbNames, nil
 }
