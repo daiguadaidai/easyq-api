@@ -21,6 +21,7 @@ func (this *UtilHandler) RegisterV1(group *gin.RouterGroup) {
 	noAuthGroup.GET("/decrypt", this.Decrypt)
 	noAuthGroup.POST("/sql-fingerprint", this.SqlFingerprint)
 	noAuthGroup.POST("/db-result", this.DBResult)
+	noAuthGroup.POST("/text-to-sqls", this.TextToSqls)
 
 	authGroup := group.Group("").Use(middlewares.JWTAuth())
 	authGroup.GET("/jwt-auth-test", this.JWTAuthTest)
@@ -119,4 +120,34 @@ func (this *UtilHandler) DBResult(c *gin.Context) {
 	}
 
 	utils.ReturnSuccess(c, result)
+}
+
+func (this *UtilHandler) TextToSqls(c *gin.Context) {
+	var req request.UtilTextToSqlsRequest
+	if err := c.ShouldBind(&req); err != nil {
+		logger.M.Errorf("[UtilHandler] TextToSqls. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+	if err := req.Check(); err != nil {
+		logger.M.Errorf("[UtilHandler] TextToSqls. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	globalCtx, err := middlewares.GetGlobalContext(c)
+	if err != nil {
+		logger.M.Error(err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	sqls, err := controllers.NewUtilController(globalCtx).TextToSqls(&req)
+	if err != nil {
+		logger.M.Error(err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	utils.ReturnList(c, sqls, len(sqls))
 }

@@ -102,3 +102,7 @@ func (this *UtilController) DBResult() (*response.UtilDBQueryResultResponse, err
 		Rows:        rows,
 	}, nil
 }
+
+func (this *UtilController) TextToSqls(req *request.UtilTextToSqlsRequest) ([]string, error) {
+	return sqlparser.SqlToMulti(req.Text)
+}
