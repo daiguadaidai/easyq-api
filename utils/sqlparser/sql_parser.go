@@ -2,6 +2,7 @@ package sqlparser
 
 import (
 	"fmt"
+	"github.com/daiguadaidai/easyq-api/utils/sqlparser/visitor"
 	"github.com/daiguadaidai/parser"
 	"github.com/daiguadaidai/parser/ast"
 	"github.com/daiguadaidai/parser/format"
@@ -196,38 +197,35 @@ func RestoreSql(node ast.Node, endStr string) (string, error) {
 }
 
 const (
-	StmtTypeUnknow = "Unknow"
-	StmtTypeSelect = "Select"
-	StmtTypeUpdate = "Update"
-	StmtTypeDelete = "Delete"
-	StmtTypeInsert = "Insert"
-	StmtTypeCreate = "Create"
-	StmtTypeAlter  = "Alter"
+	StmtTypeUnknow  = "Unknow"
+	StmtTypeSelect  = "Select"
+	StmtTypeUpdate  = "Update"
+	StmtTypeDelete  = "Delete"
+	StmtTypeInsert  = "Insert"
+	StmtTypeCreate  = "Create"
+	StmtTypeAlter   = "Alter"
+	StmtTypeExplain = "Explain"
 )
 
-func GetStmtType(sqlStr string) (string, error) {
-	ps := parser.New()
-	stmt, err := ps.ParseOneStmt(sqlStr, "", "")
-	if err != nil {
-		return "", err
-	}
-
-	switch stmt.(type) {
+func GetStmtType(stmtNode ast.StmtNode) string {
+	switch stmtNode.(type) {
+	case *ast.ExplainStmt:
+		return StmtTypeExplain
 	case *ast.SelectStmt:
-		return StmtTypeSelect, nil
+		return StmtTypeSelect
 	case *ast.UpdateStmt:
-		return StmtTypeUpdate, nil
+		return StmtTypeUpdate
 	case *ast.DeleteStmt:
-		return StmtTypeDelete, nil
+		return StmtTypeDelete
 	case *ast.InsertStmt:
-		return StmtTypeInsert, nil
+		return StmtTypeInsert
 	case *ast.AlterTableStmt:
-		return StmtTypeAlter, nil
+		return StmtTypeAlter
 	case *ast.CreateTableStmt, *ast.CreateIndexStmt, *ast.CreateBindingStmt, *ast.CreateDatabaseStmt, *ast.CreateSequenceStmt, *ast.CreateUserStmt, *ast.CreateViewStmt:
-		return StmtTypeCreate, nil
+		return StmtTypeCreate
 	}
 
-	return StmtTypeUnknow, nil
+	return StmtTypeUnknow
 }
 
 func GetStmtType2(sqlStr string) string {
@@ -382,7 +380,20 @@ func IsCreateTableStmt(sqlStr string) (bool, error) {
 }
 
 func NormalizeDigest(sqlStr string) (string, string) {
-	nor, dig :=parser.NormalizeDigest(strings.TrimSpace(sqlStr))
+	nor, dig := parser.NormalizeDigest(strings.TrimSpace(sqlStr))
 
 	return nor, dig.String()
+}
+
+func ParseOneStmt(query string) (ast.StmtNode, error) {
+	ps := parser.New()
+	return ps.ParseOneStmt(query, "", "")
+}
+
+// 获取语句的数据库
+func FindDBNamesByStmtNode(stmtNode ast.StmtNode) []string {
+	findDBVisitor := visitor.NewFindDBNameVisitor()
+	stmtNode.Accept(findDBVisitor)
+
+	return findDBVisitor.DBNames
 }

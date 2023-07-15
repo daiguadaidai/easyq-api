@@ -53,3 +53,16 @@ func (this *MysqlDBPrivDao) GetByUsernameClusterDB(username string, meta_cluster
 
 	return &priv, nil
 }
+
+func (this *MysqlDBPrivDao) GetById(privId int64) (*models.MysqlDBPriv, error) {
+	var priv models.MysqlDBPriv
+	if err := this.DB.Model(&models.MysqlDBPriv{}).Where("id = ?", privId).First(&priv).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &priv, nil
+}

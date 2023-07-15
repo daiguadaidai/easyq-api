@@ -63,3 +63,33 @@ func CheckMysqlPriv(c *gin.Context, ctx *contexts.GlobalContext, db_name string,
 
 	return priv, nil
 }
+
+func CheckMysqlPrivById(c *gin.Context, ctx *contexts.GlobalContext, privId int64) (*models.MysqlDBPriv, error) {
+	// 获取用户信息
+	clainms, err := middlewares.GetClaims(c)
+	if err != nil {
+		return nil, fmt.Errorf("通过token获取用户信息出错: %v", err)
+	}
+
+	// 获取数据库用户信息
+	user, err := dao.NewUserDao(ctx.EasyqDB).GetByUsername(clainms.Username)
+	if err != nil {
+		return nil, fmt.Errorf("通过token解析出的用户获取数据库用户出错. username: %v. %v", clainms.Username, err)
+	}
+
+	// 通过id获取数据库权限, 判断用户是否有权限
+	priv, err := dao.NewMysqlDBPrivDao(ctx.EasyqDB).GetById(privId)
+	if err != nil {
+		return nil, fmt.Errorf("获取数据库权限出错. 权限id: %v, %v", privId, err.Error())
+	}
+
+	if priv == nil {
+		return nil, fmt.Errorf("用户没有该数据库查询权限, 权限id: %v", privId)
+	}
+
+	if user.Username.String != priv.Username.String {
+		return nil, fmt.Errorf("用户没有该数据库查询权限, username: %v, meta_cluster_id: %v, db_name: %v, cluster_name: %v", user.Username.String, priv.MetaClusterId.Int64, priv.DBName.String, priv.ClusterName.String)
+	}
+
+	return priv, nil
+}
