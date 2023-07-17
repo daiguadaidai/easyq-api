@@ -54,6 +54,21 @@ func (this *MysqlDBPrivDao) GetByUsernameClusterDB(username string, meta_cluster
 	return &priv, nil
 }
 
+func (this *MysqlDBPrivDao) CountByUsernameClusterDB(username string, meta_cluster_id int64, db_name string) (int64, error) {
+	var cnt int64
+	if err := this.DB.Model(&models.MysqlDBPriv{}).
+		Where("username = ? AND meta_cluster_id = ? AND db_name = ?", username, meta_cluster_id, db_name).
+		Count(&cnt).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return 0, nil
+		}
+
+		return 0, err
+	}
+
+	return cnt, nil
+}
+
 func (this *MysqlDBPrivDao) GetById(privId int64) (*models.MysqlDBPriv, error) {
 	var priv models.MysqlDBPriv
 	if err := this.DB.Model(&models.MysqlDBPriv{}).Where("id = ?", privId).First(&priv).Error; err != nil {

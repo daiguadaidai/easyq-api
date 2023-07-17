@@ -3,6 +3,7 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	"github.com/daiguadaidai/easyq-api/utils"
 )
 
 type DBOperationDao struct {
@@ -65,4 +66,63 @@ func (this *DBOperationDao) ShowTables() ([]string, error) {
 	}
 
 	return tableNames, nil
+}
+
+/*
+	查询
+
+Return
+
+	[]map[string]interface{}: 返回数据行 rows
+	[]string: 返回字段名 columns
+	error: 错
+*/
+func (this *DBOperationDao) QueryRows(query string) ([]map[string]interface{}, []string, error) {
+	rows, err := this.DB.Query(query)
+	if err != nil {
+		return nil, nil, fmt.Errorf("执行查询语句出错. %s. %s", query, err.Error())
+	}
+	defer rows.Close()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, nil, fmt.Errorf("获取查询结果字段出错. %s. %s", query, err.Error())
+	}
+
+	colTypes, err := rows.ColumnTypes()
+	if err != nil {
+		return nil, columns, fmt.Errorf("获取查询结果字段类型出错. %s. %s", query, err.Error())
+	}
+
+	values := make([]*sql.RawBytes, len(columns))
+	scans := make([]interface{}, len(columns))
+
+	for i := range values {
+		scans[i] = &values[i]
+	}
+
+	resultsz := make([]map[string]interface{}, 0, 20)
+	for rows.Next() {
+		results := make(map[string]interface{})
+		if err = rows.Scan(scans...); err != nil {
+			return nil, columns, fmt.Errorf("scan 结果出错. %s. %s", query, err.Error())
+		}
+
+		for i, value := range values {
+			columnName := columns[i]
+
+			if value == nil {
+				results[columnName] = nil
+				continue
+			}
+			// 将 rowbyte转化称想要的类型
+			results[columnName], err = utils.ConvertAssign(*value, colTypes[i])
+			if err != nil {
+				return nil, columns, fmt.Errorf("将 rowbytes 结果转化为需要的类型的值出错. value: %v. type: %s. %s", *value, colTypes[i], err.Error())
+			}
+		}
+		resultsz = append(resultsz, results)
+	}
+
+	return resultsz, columns, nil
 }

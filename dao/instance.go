@@ -100,7 +100,7 @@ func (this *InstanceDao) CountByKeyword(keyword string) (int, error) {
 func (this *InstanceDao) FindByClusterId(clusterId int64) ([]*models.Instance, error) {
 	var instances []*models.Instance
 	if err := this.db.Model(&models.Instance{}).
-		Where("cluster_id = ? AND is_deleted=0", clusterId).
+		Where("meta_cluster_id = ? AND is_deleted=0", clusterId).
 		Order("updated_at DESC").
 		Find(&instances).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {

@@ -397,3 +397,43 @@ func FindDBNamesByStmtNode(stmtNode ast.StmtNode) []string {
 
 	return findDBVisitor.DBNames
 }
+
+func ResetSelectLimitAndGet(stmtNode ast.StmtNode, defaultLimit int64) ast.StmtNode {
+	if defaultLimit <= 0 {
+		return stmtNode
+	}
+
+	switch selectStmt := stmtNode.(type) {
+	case *ast.SelectStmt:
+		// 根本没有Limit属性
+		if selectStmt.Limit == nil {
+			selectStmt.Limit = &ast.Limit{
+				Count: ast.NewValueExpr(defaultLimit, "", ""),
+			}
+		} else {
+			// Limit中, 只有Offset没有Count
+			if selectStmt.Limit.Count == nil {
+				selectStmt.Limit.Count = ast.NewValueExpr(defaultLimit, "", "")
+			} else {
+				valueExpr, ok := selectStmt.Limit.Count.(ast.ValueExpr)
+				if !ok { // Count 不是 ValueExpr 类型, 强制设置 limit 为 自定义值
+					selectStmt.Limit.Count = ast.NewValueExpr(defaultLimit, "", "")
+				} else {
+					limitValueInterface := valueExpr.GetValue()
+					limitValue, ok := limitValueInterface.(uint64)
+					if !ok { // limit值无法转化成 int64类型
+						selectStmt.Limit.Count = ast.NewValueExpr(defaultLimit, "", "")
+					} else {
+						if int64(limitValue) > defaultLimit { // 语句的Limit值大于指定限制的limit值
+							selectStmt.Limit.Count = ast.NewValueExpr(defaultLimit, "", "")
+						}
+					}
+				}
+			}
+		}
+
+		return selectStmt
+	default:
+		return stmtNode
+	}
+}

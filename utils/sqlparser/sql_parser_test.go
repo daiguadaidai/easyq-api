@@ -99,3 +99,22 @@ func Test_GetSQLStmtHearderCommentEndPos(t *testing.T) {
 	endPos = GetSQLStmtHearderCommentEndPos(sqlStr)
 	fmt.Printf("pos: %v. sql: %v. 取消注释sql: %v\n", endPos, sqlStr, sqlStr[endPos+1:])
 }
+
+func Test_ResetSelectLimitAndGet(t *testing.T) {
+	query := "SELECT * FROM t"
+	fmt.Printf("重写前sql: %v\n", query)
+
+	stmt, err := ParseOneStmt(query)
+	if err != nil {
+		t.Fatalf("解析语句出错. %v", err.Error())
+	}
+
+	stmtNode := ResetSelectLimitAndGet(stmt, 2000)
+
+	newQuery, err := RestoreSql(stmtNode, "")
+	if err != nil {
+		t.Fatalf("重写sql生成字符串出错. %v", err.Error())
+	}
+
+	fmt.Printf("重写后sql: %v\n", newQuery)
+}

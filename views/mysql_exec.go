@@ -48,11 +48,13 @@ func (this *MysqlExecHandler) ExecSql(c *gin.Context) {
 	}
 
 	// 创建申请工单
-	if err := controllers.NewMysqlExecController(globalCtx).ExecSql(c, &req); err != nil {
+	rs, err := controllers.NewMysqlExecController(globalCtx).ExecSql(c, &req)
+	if err != nil {
 		logger.M.Errorf("[MysqlExecHandler] ExecSql. %v", err.Error())
-		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		rs.IsErr = true
+		rs.ErrMsg = err.Error()
 		return
 	}
 
-	utils.ReturnSuccess(c, nil)
+	utils.ReturnSuccess(c, rs)
 }

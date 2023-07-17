@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -221,5 +223,60 @@ func CopyStruct(src, dst interface{}) {
 		}
 
 		dvalue.Set(value) //这里默认共同成员的类型一样，否则这个地方可能导致 panic，需要简单修改一下。
+	}
+}
+
+const (
+	JS_SAFE_MAX_INT = 9007199254740992
+)
+
+func ConvertAssign(bytes sql.RawBytes, typ *sql.ColumnType) (interface{}, error) {
+	switch typ.ScanType().Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		d, err := strconv.ParseInt(string(bytes), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		if d > JS_SAFE_MAX_INT {
+			return string(bytes), nil
+		}
+		return d, nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		d, err := strconv.ParseUint(string(bytes), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		if d > JS_SAFE_MAX_INT {
+			return string(bytes), nil
+		}
+		return d, nil
+	case reflect.Float32, reflect.Float64:
+		return strconv.ParseFloat(string(bytes), 64)
+	case reflect.Struct:
+		switch typ.ScanType().String() {
+		case "sql.NullInt64":
+			d, err := strconv.ParseInt(string(bytes), 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			if d > JS_SAFE_MAX_INT {
+				return string(bytes), nil
+			}
+			return d, nil
+		case "sql.NullFloat64":
+			return strconv.ParseFloat(string(bytes), 64)
+		case "sql.NullString":
+			return string(bytes), nil
+		case "sql.NullBool":
+			return strconv.ParseBool(string(bytes))
+		case "mysql.NullTime":
+			return string(bytes), nil
+		case "time.Time":
+			return string(bytes), nil
+		default:
+			return string(bytes), nil
+		}
+	default:
+		return string(bytes), nil
 	}
 }

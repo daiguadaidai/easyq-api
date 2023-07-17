@@ -231,3 +231,12 @@ func GetSuffix(str string, suffixSep string) string {
 	items := strings.Split(str, suffixSep)
 	return items[len(items)-1]
 }
+
+func ErrorsToError(errs []error) error {
+	strs := make([]string, 0, len(errs))
+	for _, err := range errs {
+		strs = append(strs, err.Error())
+	}
+
+	return fmt.Errorf("%v", strings.Join(strs, "\n"))
+}
