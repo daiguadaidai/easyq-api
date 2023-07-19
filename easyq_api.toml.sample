@@ -39,6 +39,11 @@ mysql_max_idel_conns = 7 # 空闲链接数
 mysql_allow_old_passwords = 1 # 是否允许oldpassword
 mysql_auto_commit = true # 是否自动提交
 
+# 执行配置信息
+[exec_config]
+exec_mysql_exec_timeout = 30 # 默认查询时sql执行多久超时
+exec_mysql_select_limit = 2000 # 默认 SELECT 返回limit 行数
+
 # 日志配置
 [log_config]
 log_filename = "./logs/easyq_api.log" # 日志文件

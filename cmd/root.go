@@ -28,6 +28,7 @@ var apiConfig *config.ApiConfig
 var easyqMysqlConfig *config.MysqlConfig
 var easydbMysqlConfig *config.MysqlConfig
 var logConfig *config.LogConfig
+var execConfig *config.ExecConfig
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -72,6 +73,8 @@ Example:
     --easydb-mysql-max-idle-conns=7 \
     --easydb-mysql-allow-old-password=1 \
     --easydb-mysql-auto-commit=true \
+    --exec-mysql-exec-timeout=30 \
+    --exec-mysql-select-limit=2000 \
     --log-filename="logs/easyq_api.log" \
     --log-level="info" \
     --log-max-size=1024 \
@@ -84,7 +87,7 @@ Example:
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取所有的 命令行key
-		allCmdKeys, err := getAllCmdKeys(apiConfig, logConfig, easyqMysqlConfig, easydbMysqlConfig)
+		allCmdKeys, err := getAllCmdKeys(apiConfig, logConfig, easyqMysqlConfig, easydbMysqlConfig, execConfig)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
@@ -92,7 +95,7 @@ Example:
 		// 获取手动指定的命令
 		changeCmdKeys := getChangeCmdStrs(cmd, allCmdKeys)
 
-		if err := services.RunApi(changeCmdKeys, apiConfig, logConfig, easyqMysqlConfig, easydbMysqlConfig); err != nil {
+		if err := services.RunApi(changeCmdKeys, apiConfig, logConfig, easyqMysqlConfig, easydbMysqlConfig, execConfig); err != nil {
 			log.Fatalln(err.Error())
 		}
 	},
@@ -109,6 +112,7 @@ func init() {
 	initLogConfig()
 	initEasyQMysqlConfig()
 	initEasyDBMysqlConfig()
+	initExecConfig()
 }
 
 func initStartConfig() {
@@ -172,12 +176,20 @@ func initLogConfig() {
 	rootCmd.PersistentFlags().BoolVar(&logConfig.LogConsole, "log-console", config.DefaultLogConsole, "是否打印到控制台")
 }
 
+func initExecConfig() {
+	execConfig = new(config.ExecConfig)
+
+	rootCmd.PersistentFlags().Int64Var(&execConfig.ExecMysqlExecTimeout, "exec-mysql-exec-timeout", config.DefaultExecMysqlExecTimeout, "mysql执行超时时间(单位:s)")
+	rootCmd.PersistentFlags().Int64Var(&execConfig.ExecMysqlSelectLimit, "exec-mysql-select-limit", config.DefaultExecMysqlSelectLimit, "mysql执行sql select的默认limit数")
+}
+
 // 获取所有的命令行key
 func getAllCmdKeys(
 	apiConfig *config.ApiConfig,
 	logConfig *config.LogConfig,
 	easyqMysqlConfig *config.MysqlConfig,
 	easydbMysqlConfig *config.MysqlConfig,
+	execConfig *config.ExecConfig,
 ) ([]string, error) {
 	startConfigFiledNames, err := utils.GetStructFieldNames(apiConfig)
 	if err != nil {
@@ -195,12 +207,17 @@ func getAllCmdKeys(
 	if err != nil {
 		return nil, fmt.Errorf("获取EasyDBMysqlConfig所有字段名称失败. %v", err.Error())
 	}
+	execConfigFiledNames, err := utils.GetStructFieldNames(execConfig)
+	if err != nil {
+		return nil, fmt.Errorf("获取ExecConfig所有字段名称失败. %v", err.Error())
+	}
 
 	allFieldNames := make([]string, 0, 10)
 	allFieldNames = append(allFieldNames, startConfigFiledNames...)
 	allFieldNames = append(allFieldNames, logConfigFiledNames...)
 	allFieldNames = append(allFieldNames, easyqMysqlConfigFiledNames...)
 	allFieldNames = append(allFieldNames, easydbMysqlConfigFiledNames...)
+	allFieldNames = append(allFieldNames, execConfigFiledNames...)
 
 	allSnakeFieldNames := utils.SnakeStrs(allFieldNames)
 	allCmdKeys := utils.ReplaceAllStrs(allSnakeFieldNames, "_", "-")

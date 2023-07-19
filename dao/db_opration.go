@@ -126,3 +126,26 @@ func (this *DBOperationDao) QueryRows(query string) ([]map[string]interface{}, [
 
 	return resultsz, columns, nil
 }
+
+// 获取链接ID
+func (this *DBOperationDao) GetThreadId() (int64, error) {
+	query := `SELECT CONNECTION_ID()`
+
+	var threadId int64
+	if err := this.DB.QueryRow(query).Scan(&threadId); err != nil {
+		return 0, err
+	}
+
+	return threadId, nil
+}
+
+// Kill 链接
+func (this *DBOperationDao) Kill(threadId int64) error {
+	query := fmt.Sprintf(`kill %d`, threadId)
+
+	if _, err := this.DB.Exec(query); err != nil {
+		return err
+	}
+
+	return nil
+}

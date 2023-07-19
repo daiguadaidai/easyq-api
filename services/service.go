@@ -16,8 +16,9 @@ func RunApi(
 	logConfigCmd *config.LogConfig,
 	easyqMysqlConfigCmd *config.MysqlConfig,
 	easydbMysqlConfigCmd *config.MysqlConfig,
+	execConfig *config.ExecConfig,
 ) error {
-	serverConfigCmd := config.NewServerConfig(apiConfigCmd, logConfigCmd, easyqMysqlConfigCmd, easydbMysqlConfigCmd)
+	serverConfigCmd := config.NewServerConfig(apiConfigCmd, logConfigCmd, easyqMysqlConfigCmd, easydbMysqlConfigCmd, execConfig)
 	serverConfig, err := config.GetConfigs(serverConfigCmd, changeCmdKeys)
 	if err != nil {
 		return fmt.Errorf("创建最终的配置文件出错. %v", err.Error())

@@ -13,6 +13,7 @@ type ServerConfig struct {
 	LogConfig         *LogConfig   `json:"log_config" toml:"log_config"`
 	EasyQMysqlConfig  *MysqlConfig `json:"easyq_mysql_config" toml:"easyq_mysql_config"`
 	EasyDBMysqlConfig *MysqlConfig `json:"easydb_mysql_config" toml:"easydb_mysql_config"`
+	ExecConfig        *ExecConfig  `json:"exec_config" toml:"exec_config"`
 }
 
 func NewServerConfig(
@@ -20,12 +21,14 @@ func NewServerConfig(
 	logConfig *LogConfig,
 	easyQMysqlConfig *MysqlConfig,
 	easyDBMysqlConfig *MysqlConfig,
+	execConfig *ExecConfig,
 ) *ServerConfig {
 	return &ServerConfig{
 		ApiConfig:         apiConfig,
 		LogConfig:         logConfig,
 		EasyQMysqlConfig:  easyQMysqlConfig,
 		EasyDBMysqlConfig: easyDBMysqlConfig,
+		ExecConfig:        execConfig,
 	}
 }
 
@@ -138,6 +141,18 @@ func newConfigFromConsoleAndToml(
 	// 设置命令行手动指定日志参数
 	if err := utils.SetObjFieldsFromOtherObj(easydbMysqlConfigCmdKeys, serverConfigCmd.EasyDBMysqlConfig, serverConfigNew.EasyDBMysqlConfig); err != nil {
 		return nil, fmt.Errorf("设置EasyDBMysqlConfig命令行设置值. %v", err.Error())
+	}
+
+	// 获取ExecConfig需要修改的字段名称
+	execConfigFieldNames, err := utils.GetStructFieldNames(serverConfigCmd.ExecConfig)
+	if err != nil {
+		return nil, fmt.Errorf("获取ExecConfig所有字段失败. %v", err.Error())
+	}
+	// 获取是ExecConfig的命令行输入参数
+	execConfigCmdKeys := utils.GetExistsStrs(camelCmdKeys, execConfigFieldNames)
+	// 设置命令行手动指定日志参数
+	if err := utils.SetObjFieldsFromOtherObj(execConfigCmdKeys, serverConfigCmd.ExecConfig, serverConfigNew.ExecConfig); err != nil {
+		return nil, fmt.Errorf("设置ExecConfig命令行设置值. %v", err.Error())
 	}
 
 	return serverConfigNew, nil
