@@ -53,7 +53,6 @@ func (this *MysqlExecHandler) ExecSql(c *gin.Context) {
 		logger.M.Errorf("[MysqlExecHandler] ExecSql. %v", err.Error())
 		rs.IsErr = true
 		rs.ErrMsg = err.Error()
-		return
 	}
 
 	utils.ReturnSuccess(c, rs)
