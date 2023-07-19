@@ -42,26 +42,22 @@ func getExecInstance(ctx *contexts.GlobalContext, priv *models.MysqlDBPriv) (*mo
 	masters, slaves, backups, others := splitInstances(instances)
 
 	// 检测backups
-	errs := make([]error, 0, len(instances))
 	backup, backupErr := checkAndGetInstance(backups, "backup", ctx.Cfg.ApiConfig.QueryMysqlUser, ctx.Cfg.ApiConfig.QueryMysqlPassword, priv.DBName.String)
 	if backupErr == nil { // 没有错误说明backup实例可用
 		return backup, nil
 	}
-	errs = append(errs, backupErr)
 
 	// 检测 slaves
 	slave, slaveErr := checkAndGetInstance(slaves, "slave", ctx.Cfg.ApiConfig.QueryMysqlUser, ctx.Cfg.ApiConfig.QueryMysqlPassword, priv.DBName.String)
 	if slaveErr == nil {
 		return slave, nil
 	}
-	errs = append(errs, slaveErr)
 
 	// 检测 master
 	master, masterErr := checkAndGetInstance(masters, "master", ctx.Cfg.ApiConfig.QueryMysqlUser, ctx.Cfg.ApiConfig.QueryMysqlPassword, priv.DBName.String)
 	if masterErr == nil {
 		return master, nil
 	}
-	errs = append(errs, masterErr)
 
 	// 检测 others
 	other, otherErr := checkAndGetInstance(others, "other", ctx.Cfg.ApiConfig.QueryMysqlUser, ctx.Cfg.ApiConfig.QueryMysqlPassword, priv.DBName.String)
@@ -70,7 +66,7 @@ func getExecInstance(ctx *contexts.GlobalContext, priv *models.MysqlDBPriv) (*mo
 		return other, nil
 	}
 
-	return nil, utils.ErrorsToError(errs)
+	return nil, utils.ErrorsToError(backupErr, slaveErr, masterErr, otherErr)
 }
 
 func checkAndGetInstance(instances []*models.Instance, tagStr string, username, password, database string) (*models.Instance, error) {
@@ -118,7 +114,7 @@ func splitInstances(instances []*models.Instance) ([]*models.Instance, []*models
 }
 
 // 指定单实例mysql
-func StartExecSingleMysqlSql(ctx *contexts.GlobalContext, priv *models.MysqlDBPriv, query string) ([]string, []map[string]interface{}, error) {
+func StartExecSingleMysqlSql(ctx *contexts.GlobalContext, priv *models.MysqlDBPriv, query string) ([]map[string]interface{}, []string, error) {
 	// 获取执行的实例
 	execInstance, err := getExecInstance(ctx, priv)
 	if err != nil {
@@ -126,11 +122,7 @@ func StartExecSingleMysqlSql(ctx *contexts.GlobalContext, priv *models.MysqlDBPr
 	}
 
 	mysqlCfg := config.NewMysqlConfig(execInstance.MachineHost.String, execInstance.Port.Int64, ctx.Cfg.ApiConfig.QueryMysqlUser, ctx.Cfg.ApiConfig.QueryMysqlPassword, priv.DBName.String)
-	mysqlExecutor := executor.NewMysqlExcutor(mysqlCfg, query)
-	columns, rows, err := mysqlExecutor.Execute()
-	if err != nil {
-		return nil, nil, fmt.Errorf("执行sql语句出错. %v", err.Error())
-	}
+	mysqlExecutor := executor.NewMysqlExcutor(ctx.Cfg.ExecConfig, mysqlCfg, query)
 
-	return columns, rows, nil
+	return mysqlExecutor.Execute()
 }

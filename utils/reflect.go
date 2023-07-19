@@ -269,13 +269,20 @@ func ConvertAssign(bytes sql.RawBytes, typ *sql.ColumnType) (interface{}, error)
 			return string(bytes), nil
 		case "sql.NullBool":
 			return strconv.ParseBool(string(bytes))
-		case "mysql.NullTime":
-			return string(bytes), nil
-		case "time.Time":
-			return string(bytes), nil
-		default:
-			return string(bytes), nil
+		case "sql.NullTime", "mysql.NullTime", "time.Time":
+			_, scale, _ := typ.DecimalSize()
+
+			switch typ.DatabaseTypeName() {
+			case "DATETIME", "TIMESTAMP":
+				return SqlConvertStrToNormalDatetimeStr(string(bytes), scale)
+			case "DATE":
+				return SqlConvertStrToNormalDateStr(string(bytes), scale)
+			case "TIME":
+				return SqlConvertStrToNormalTimeStr(string(bytes), scale)
+			}
+
 		}
+		return string(bytes), nil
 	default:
 		return string(bytes), nil
 	}

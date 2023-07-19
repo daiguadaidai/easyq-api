@@ -6,12 +6,14 @@ import (
 	"github.com/daiguadaidai/easyq-api/config"
 	"github.com/daiguadaidai/easyq-api/dao"
 	"github.com/daiguadaidai/easyq-api/gdbc"
+	"github.com/daiguadaidai/easyq-api/utils"
 	"sync"
 	"time"
 )
 
 type MysqlExcutor struct {
 	mysqlCfg    *config.MysqlConfig
+	execConfig  *config.ExecConfig
 	query       string
 	successChan chan struct{}
 	ctx         context.Context
@@ -19,10 +21,11 @@ type MysqlExcutor struct {
 	err         error
 }
 
-func NewMysqlExcutor(mysqlCfg *config.MysqlConfig, query string) *MysqlExcutor {
+func NewMysqlExcutor(execConfig *config.ExecConfig, mysqlCfg *config.MysqlConfig, query string) *MysqlExcutor {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &MysqlExcutor{
+		execConfig:  execConfig,
 		mysqlCfg:    mysqlCfg,
 		query:       query,
 		successChan: make(chan struct{}),
@@ -31,7 +34,7 @@ func NewMysqlExcutor(mysqlCfg *config.MysqlConfig, query string) *MysqlExcutor {
 	}
 }
 
-func (this *MysqlExcutor) Execute() ([]string, []map[string]interface{}, error) {
+func (this *MysqlExcutor) Execute() ([]map[string]interface{}, []string, error) {
 	defer func() {
 		this.cancel()
 	}()
@@ -44,6 +47,8 @@ func (this *MysqlExcutor) Execute() ([]string, []map[string]interface{}, error) 
 
 	// 获取数据库链接id
 	dbOpDao := dao.NewDBOperationDao(db)
+	defer dbOpDao.Close()
+
 	threadId, err := dbOpDao.GetThreadId()
 	if err != nil {
 		return nil, nil, fmt.Errorf("获取链接 threadId 出错. %v", err.Error())
@@ -54,16 +59,25 @@ func (this *MysqlExcutor) Execute() ([]string, []map[string]interface{}, error) 
 	wg.Add(1)
 	go this.timeoutAndKill(wg, this.mysqlCfg.MysqlHost, this.mysqlCfg.MysqlPort, threadId)
 
+	// 执行查询获取结果
+	rows, columns, err := dbOpDao.QueryRows(this.query)
+	if err != nil {
+		err = fmt.Errorf("查询失败. %s %s", this.query, err.Error())
+	}
+
+
+	// 通知执行完成
+	close(this.successChan)
 	wg.Wait()
 
-	return nil, nil, nil
+	return rows, columns, utils.ErrorsToError(err, this.err)
 }
 
 // 监听超时 并执行kill操作
 func (this *MysqlExcutor) timeoutAndKill(wg *sync.WaitGroup, host string, port, threadId int64) {
 	defer wg.Done()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(30)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(this.execConfig.ExecMysqlExecTimeout)*time.Second)
 	defer func() {
 		cancel()
 	}()

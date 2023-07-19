@@ -1,7 +1,6 @@
 package visitor
 
 import (
-	"fmt"
 	"github.com/daiguadaidai/parser/ast"
 	_ "github.com/daiguadaidai/parser/test_driver"
 )
@@ -18,8 +17,6 @@ func NewFindDBNameVisitor() *FindDBNameVisitor {
 }
 
 func (this *FindDBNameVisitor) Enter(in ast.Node) (out ast.Node, skipChildren bool) {
-	fmt.Printf("Enter: %T, %[1]v\n", in)
-
 	switch stmt := in.(type) {
 	case *ast.TableName:
 		if stmt.Schema.String() != "" {

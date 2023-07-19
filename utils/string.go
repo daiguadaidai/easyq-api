@@ -232,10 +232,17 @@ func GetSuffix(str string, suffixSep string) string {
 	return items[len(items)-1]
 }
 
-func ErrorsToError(errs []error) error {
+func ErrorsToError(errs ...error) error {
 	strs := make([]string, 0, len(errs))
 	for _, err := range errs {
+		if err == nil {
+			continue
+		}
 		strs = append(strs, err.Error())
+	}
+
+	if len(strs) == 0 {
+		return nil
 	}
 
 	return fmt.Errorf("%v", strings.Join(strs, "\n"))

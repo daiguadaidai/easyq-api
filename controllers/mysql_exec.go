@@ -49,7 +49,7 @@ func (this *MysqlExecController) ExecSql(c *gin.Context, req *request.MysqlExecS
 	}
 
 	// SELECT 语句查看是否有LIMIT, 没有LIMIT 自动添加, 默认 LIMIT 2000
-	newNodeStmt := sqlparser.ResetSelectLimitAndGet(stmtNode, 2000)
+	newNodeStmt := sqlparser.ResetSelectLimitAndGet(stmtNode, this.ctx.Cfg.ExecConfig.ExecMysqlSelectLimit)
 
 	// 获取语句前缀 注释
 	prefixStr := sqlparser.GetSQLStmtHearderComment(stmtNode.Text())
@@ -64,7 +64,7 @@ func (this *MysqlExecController) ExecSql(c *gin.Context, req *request.MysqlExecS
 	logger.M.Infof("用户: %v, 数据库: %v, 集群id: %v. \n重写前sql: %v\n重写后sql: %v\n", priv.Username.String, priv.DBName.String, priv.MetaClusterId.Int64, stmtNode.Text(), newQuery)
 
 	// 开始执行sql
-	columns, rows, err := helper.StartExecSingleMysqlSql(this.ctx, priv, newQuery)
+	rows, columns, err := helper.StartExecSingleMysqlSql(this.ctx, priv, newQuery)
 	if err != nil {
 		return nil, err
 	}
