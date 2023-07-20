@@ -131,7 +131,6 @@ const (
 )
 
 type MySQLPool struct {
-	Role string
 	sync.Mutex
 	dbChan  chan *sql.DB
 	Cfg     *dbConfig
@@ -151,7 +150,6 @@ func Open(
 	timeout int64,
 	minOpen int64,
 	maxOpen int64,
-	role string,
 ) (*MySQLPool, error) {
 	cfg := newDBConfig(host, port, username, password, dbName, charset, autoCommit, timeout)
 
@@ -186,8 +184,6 @@ func Open(
 		p.minOpen = p.maxOpen
 		logger.M.Warn("最小链接数:%d 大于 最大链接数:%d. 设置最小链接为:%d", p.minOpen, p.maxOpen, p.maxOpen)
 	}
-
-	p.Role = role
 
 	return p, nil
 }

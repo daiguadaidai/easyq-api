@@ -2,7 +2,7 @@ package gdbc
 
 import (
 	"fmt"
-	"github.com/astaxie/beego/logs"
+	"github.com/daiguadaidai/easyq-api/logger"
 	"sync"
 	"testing"
 )
@@ -19,7 +19,7 @@ func Test_GetAndReleaseMySQLDB(t *testing.T) {
 	minOpen := 8
 	maxOpen := 8
 
-	pool, err := Open(host, int64(port), username, password, database, charset, autocommit, int64(timeout), int64(minOpen), int64(maxOpen))
+	pool, err := Open(host, int64(port), username, password, database, charset, autocommit, int64(timeout), int64(minOpen), int64(maxOpen) )
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -33,17 +33,17 @@ func Test_GetAndReleaseMySQLDB(t *testing.T) {
 			for j := 0; j < 10000; j++ {
 				db, err := pool.Get()
 				if err != nil {
-					logs.Error(err.Error())
+					logger.M.Error(err.Error())
 					return
 				}
 				var threadId int64
 				if err := db.QueryRow("SELECT CONNECTION_ID()").Scan(&threadId); err != nil {
-					logs.Error(err.Error())
+					logger.M.Error(err.Error())
 					return
 				}
 				fmt.Printf("%d. tag: %d, ThreadId: %d\n", j, tag, threadId)
 				if err := pool.Release(db); err != nil {
-					logs.Error("归还链接出错. %s", err.Error())
+					logger.M.Errorf("归还链接出错. %s", err.Error())
 				}
 			}
 		}(wg, i)
