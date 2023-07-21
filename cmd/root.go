@@ -75,6 +75,7 @@ Example:
     --easydb-mysql-auto-commit=true \
     --exec-mysql-exec-timeout=30 \
     --exec-mysql-select-limit=2000 \
+    --exec-create-insert-sql-batch-size=1000 \
     --log-filename="logs/easyq_api.log" \
     --log-level="info" \
     --log-max-size=1024 \
@@ -181,6 +182,7 @@ func initExecConfig() {
 
 	rootCmd.PersistentFlags().Int64Var(&execConfig.ExecMysqlExecTimeout, "exec-mysql-exec-timeout", config.DefaultExecMysqlExecTimeout, "mysql执行超时时间(单位:s)")
 	rootCmd.PersistentFlags().Int64Var(&execConfig.ExecMysqlSelectLimit, "exec-mysql-select-limit", config.DefaultExecMysqlSelectLimit, "mysql执行sql select的默认limit数")
+	rootCmd.PersistentFlags().Int64Var(&execConfig.ExecCreateInsertSqlBatchSize, "exec-create-insert-sql-batch-size", config.DefaultExecCreateInsertSqlBatchSize, "默认创建 批量 Insert sql 批量值")
 }
 
 // 获取所有的命令行key

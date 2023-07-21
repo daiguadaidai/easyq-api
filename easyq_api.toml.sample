@@ -43,6 +43,7 @@ mysql_auto_commit = true # 是否自动提交
 [exec_config]
 exec_mysql_exec_timeout = 30 # 默认查询时sql执行多久超时
 exec_mysql_select_limit = 2000 # 默认 SELECT 返回limit 行数
+exec_create_insert_sql_batch_size = 1000 # 默认 批量 insert 值
 
 # 日志配置
 [log_config]

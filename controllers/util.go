@@ -3,11 +3,13 @@ package controllers
 import (
 	"fmt"
 	"github.com/daiguadaidai/easyq-api/contexts"
+	"github.com/daiguadaidai/easyq-api/controllers/helper"
 	"github.com/daiguadaidai/easyq-api/models/external"
 	"github.com/daiguadaidai/easyq-api/utils"
 	"github.com/daiguadaidai/easyq-api/utils/sqlparser"
 	"github.com/daiguadaidai/easyq-api/views/request"
 	"github.com/daiguadaidai/easyq-api/views/response"
+	"strings"
 )
 
 type UtilController struct {
@@ -105,4 +107,26 @@ func (this *UtilController) DBResult() (*response.UtilDBQueryResultResponse, err
 
 func (this *UtilController) TextToSqls(req *request.UtilTextToSqlsRequest) ([]string, error) {
 	return sqlparser.SqlToMulti(req.Text)
+}
+
+func (this *UtilController) GetBatchInsertSql(req *request.UtilGetBatchInsertSqlRequest) (string, error) {
+	// 生成insert 模板
+	insertNodeStmt, err := sqlparser.CreateInsertStmtTemplate("", req.TableName, req.ColumnNames)
+	if err != nil {
+		return "", fmt.Errorf("生成Insert sql语句模板节点失败. %v", err.Error())
+	}
+
+	// 生成 insert 语句 values 数据值
+	rows, err := helper.ConvertRowMapToRows(req.Rows, req.ColumnNames)
+	if err != nil {
+		return "", fmt.Errorf("转化insert value值出错. %v", err.Error())
+	}
+
+	// 生成完整的 insert 语句节点
+	insertSqlStrs, err := sqlparser.CreateInsertSqlsByRows(insertNodeStmt, rows, this.Ctx.Cfg.ExecConfig.ExecCreateInsertSqlBatchSize, ";")
+	if err != nil {
+		return "", fmt.Errorf("生成 批量Insert sql语句出错. %v", err.Error())
+	}
+
+	return strings.Join(insertSqlStrs, "\n"), nil
 }

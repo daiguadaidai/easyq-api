@@ -28,3 +28,25 @@ func (this *UtilTextToSqlsRequest) Check() error {
 
 	return nil
 }
+
+type UtilGetBatchInsertSqlRequest struct {
+	TableName   string                   `json:"table_name" form:"table_name"`
+	ColumnNames []string                 `json:"column_names" form:"column_names"`
+	Rows        []map[string]interface{} `json:"rows" form:"rows"`
+}
+
+func (this *UtilGetBatchInsertSqlRequest) Check() error {
+	if len(this.ColumnNames) == 0 {
+		return fmt.Errorf("字段名不能为空")
+	}
+
+	if len(this.Rows) == 0 {
+		return fmt.Errorf("数据不能为空")
+	}
+
+	if strings.TrimSpace(this.TableName) == "" {
+		return fmt.Errorf("表名不能为空")
+	}
+
+	return nil
+}

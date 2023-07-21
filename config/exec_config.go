@@ -8,11 +8,13 @@ import (
 const (
 	DefaultExecMysqlExecTimeout = 30   // mysql默认执行超时时间
 	DefaultExecMysqlSelectLimit = 2000 // 默认执行select limit 值
+	DefaultExecCreateInsertSqlBatchSize = 1000 // 默认生成 批量insertsql值
 )
 
 type ExecConfig struct {
-	ExecMysqlExecTimeout int64 `json:"exec_mysql_exec_timeout" toml:"exec_mysql_exec_timeout"`
-	ExecMysqlSelectLimit int64 `json:"exec_mysql_select_limit" toml:"exec_mysql_select_limit"`
+	ExecMysqlExecTimeout         int64 `json:"exec_mysql_exec_timeout" toml:"exec_mysql_exec_timeout"`
+	ExecMysqlSelectLimit         int64 `json:"exec_mysql_select_limit" toml:"exec_mysql_select_limit"`
+	ExecCreateInsertSqlBatchSize int64 `json:"exec_create_insert_sql_batch_size" toml:"exec_create_insert_sql_batch_size"`
 }
 
 func (this *ExecConfig) DeepClone() (*ExecConfig, error) {

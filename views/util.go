@@ -22,6 +22,7 @@ func (this *UtilHandler) RegisterV1(group *gin.RouterGroup) {
 	noAuthGroup.POST("/sql-fingerprint", this.SqlFingerprint)
 	noAuthGroup.POST("/db-result", this.DBResult)
 	noAuthGroup.POST("/text-to-sqls", this.TextToSqls)
+	noAuthGroup.POST("/get-batch-insert-sql", this.GetBatchInsertSql)
 
 	authGroup := group.Group("").Use(middlewares.JWTAuth())
 	authGroup.GET("/jwt-auth-test", this.JWTAuthTest)
@@ -150,4 +151,34 @@ func (this *UtilHandler) TextToSqls(c *gin.Context) {
 	}
 
 	utils.ReturnList(c, sqls, len(sqls))
+}
+
+func (this *UtilHandler) GetBatchInsertSql(c *gin.Context) {
+	var req request.UtilGetBatchInsertSqlRequest
+	if err := c.ShouldBind(&req); err != nil {
+		logger.M.Errorf("[UtilHandler] GetBatchInsertSqls. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+	if err := req.Check(); err != nil {
+		logger.M.Errorf("[UtilHandler] GetBatchInsertSqls. %v", err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	globalCtx, err := middlewares.GetGlobalContext(c)
+	if err != nil {
+		logger.M.Error(err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	insertSql, err := controllers.NewUtilController(globalCtx).GetBatchInsertSql(&req)
+	if err != nil {
+		logger.M.Error(err.Error())
+		utils.ReturnError(c, utils.ResponseCodeErr, err)
+		return
+	}
+
+	utils.ReturnSuccess(c, insertSql)
 }
